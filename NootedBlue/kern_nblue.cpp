@@ -69,8 +69,11 @@ void NBlue::processPatcher(KernelPatcher &patcher) {
 		
 
         static uint8_t builtin[] = {0x00};
-		static uint8_t builtin2[] = {0x02, 0x00, 0x5c, 0x8A};
-		static uint8_t builtin3[] = {0x5c, 0x8A,0x00,0x00};
+		//static uint8_t builtin2[] = {0x02, 0x00, 0x5c, 0x8A};
+		//static uint8_t builtin3[] = {0x5c, 0x8A,0x00,0x00};
+		
+		static uint8_t builtin2[] = {0x00, 0x00, 0x49, 0x9A};
+		static uint8_t builtin3[] = {0x49, 0x9A,0x00,0x00};
 
 		WIOKit::renameDevice(this->iGPU, "IGPU");
 		WIOKit::awaitPublishing(this->iGPU);

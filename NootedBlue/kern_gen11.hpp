@@ -870,8 +870,8 @@ private:
 	void (*orgDisableCDClock)(void *) {nullptr};
 	void (*orgSetCDClockFrequency)(void *, unsigned long long) {nullptr};
 	
-
-	
+	static void * wprobe(void *that,void *param_1,int *param_2);
+	mach_vm_address_t owprobe {};
 };
 
 #endif /* kern_gen8_hpp */

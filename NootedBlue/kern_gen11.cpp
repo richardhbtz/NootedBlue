@@ -6,6 +6,8 @@
 
 static const char *pathG11FB = "/System/Library/Extensions/AppleIntelICLLPGraphicsFramebuffer.kext/Contents/MacOS/"
                                "AppleIntelICLLPGraphicsFramebuffer";
+static const char *pathG11FBT = "/Library/Extensions/AppleIntelTGLGraphicsFramebuffer.kext/Contents/MacOS/"
+							   "AppleIntelTGLGraphicsFramebuffer";
 static const char *pathG11HW =
     "/System/Library/Extensions/AppleIntelICLGraphics.kext/Contents/MacOS/AppleIntelICLGraphics";
 
@@ -13,6 +15,8 @@ static KernelPatcher::KextInfo kextG11FB {"com.apple.driver.AppleIntelICLLPGraph
     KernelPatcher::KextInfo::Unloaded};
 static KernelPatcher::KextInfo kextG11HW {"com.apple.driver.AppleIntelICLGraphics", &pathG11HW, 1, {}, {},
     KernelPatcher::KextInfo::Unloaded};
+static KernelPatcher::KextInfo kextG11FBT {"com.xxxxx.driver.AppleIntelTGLGraphicsFramebuffer", &pathG11FB, 1, {}, {},
+	KernelPatcher::KextInfo::Unloaded};
 
 Gen11 *Gen11::callback = nullptr;
 
@@ -20,11 +24,17 @@ void Gen11::init() {
 	callback = this;
     lilu.onKextLoadForce(&kextG11FB);
     lilu.onKextLoadForce(&kextG11HW);
+	lilu.onKextLoadForce(&kextG11FBT);
 }
 
 
 
 bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size) {
+	if (kextG11FBT.loadIndex == index) {
+		SYSLOG("nblue", "AppleIntelTGLGraphicsFramebuffer");
+		
+		return true;
+	}
     if (kextG11FB.loadIndex == index) {
         //NBlue::callback->igfxGen = iGFXGen::Gen11;
 		NBlue::callback->setRMMIOIfNecessary();
@@ -48,7 +58,7 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			
 		
 			{"__ZL15pmNotifyWrapperjjPyPj",wrapPmNotifyWrapper,	this->orgPmNotifyWrapper},
-			
+			{"__ZN31AppleIntelFramebufferController5probeEP9IOServicePi",wprobe,	this->owprobe},
 			
 			
 			//{"__ZN31AppleIntelFramebufferController15hwSetPanelPowerEj",hwSetPanelPower},
@@ -858,9 +868,9 @@ uint32_t Gen11::wrapProbeCDClockFrequency(void *that) {
 
 bool Gen11::start(void *that,void  *param_1)
 {
-
-	
 	callback->framecont=that;
+	return false;
+	
 	auto ret= FunctionCast(start, callback->ostart)(that,param_1);
 	
 	return ret;
@@ -1159,5 +1169,11 @@ void  Gen11::readAndClearInterrupts(void *that,void *param_1)
 void * Gen11::serviceInterrupts(void *param_1)
 {
 	return FunctionCast(serviceInterrupts, callback->oserviceInterrupts)(param_1);
+	
+}
+
+void * Gen11::wprobe(void *that,void *param_1,int *param_2)
+{
+	return that;
 	
 }
