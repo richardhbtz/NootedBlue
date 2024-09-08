@@ -13,7 +13,7 @@ void DYLDPatches::init() { callback = this; }
 
 void DYLDPatches::processPatcher(KernelPatcher &patcher) {
 
-	//return;
+	return;
 
     auto *entry = IORegistryEntry::fromPath("/", gIODTPlane);
     if (entry) {

@@ -10,11 +10,15 @@ static const char *pathG11FBT = "/Library/Extensions/AppleIntelTGLGraphicsFrameb
 							   "AppleIntelTGLGraphicsFramebuffer";
 static const char *pathG11HW =
     "/System/Library/Extensions/AppleIntelICLGraphics.kext/Contents/MacOS/AppleIntelICLGraphics";
+static const char *pathG11HWT =
+	"/Library/Extensions/AppleIntelTGLGraphics.kext/Contents/MacOS/AppleIntelTGLGraphics";
 
 static KernelPatcher::KextInfo kextG11FB {"com.apple.driver.AppleIntelICLLPGraphicsFramebuffer", &pathG11FB, 1, {}, {},
     KernelPatcher::KextInfo::Unloaded};
 static KernelPatcher::KextInfo kextG11HW {"com.apple.driver.AppleIntelICLGraphics", &pathG11HW, 1, {}, {},
     KernelPatcher::KextInfo::Unloaded};
+static KernelPatcher::KextInfo kextG11HWT {"com.xxxxx.driver.AppleIntelTGLGraphics", &pathG11HW, 1, {}, {},
+	KernelPatcher::KextInfo::Unloaded};
 static KernelPatcher::KextInfo kextG11FBT {"com.xxxxx.driver.AppleIntelTGLGraphicsFramebuffer", &pathG11FB, 1, {}, {},
 	KernelPatcher::KextInfo::Unloaded};
 
@@ -25,13 +29,186 @@ void Gen11::init() {
     lilu.onKextLoadForce(&kextG11FB);
     lilu.onKextLoadForce(&kextG11HW);
 	lilu.onKextLoadForce(&kextG11FBT);
+	lilu.onKextLoadForce(&kextG11HWT);
 }
 
 
 
 bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size) {
 	if (kextG11FBT.loadIndex == index) {
+		NBlue::callback->setRMMIOIfNecessary();
 		SYSLOG("nblue", "AppleIntelTGLGraphicsFramebuffer");
+		
+		SolveRequestPlus solveRequests[] = {
+			
+			{"__ZN24AppleIntelBaseController14disableCDClockEv", this->orgDisableCDClock},
+			{"__ZN24AppleIntelBaseController19setCDClockFrequencyEy", this->orgSetCDClockFrequency},
+			
+		};
+		SYSLOG_COND(!SolveRequestPlus::solveAll(patcher, index, solveRequests, address, size), "nblue",	"Failed to resolve symbols");
+		
+		
+		RouteRequestPlus requests[] = {
+			
+			/*{"__ZN24AppleIntelBaseController15WriteRegister32Emj",tWriteRegister32},
+			{"__ZN24AppleIntelBaseController15WriteRegister64EPVvmy",tWriteRegister64},
+			{"__ZN24AppleIntelBaseController14ReadRegister32Em",tReadRegister32},
+			{"__ZN24AppleIntelBaseController14ReadRegister64EPVvm",tReadRegister64},
+			{"__ZN24AppleIntelBaseController9getPMTNowEv",tgetPMTNow},
+			{"__ZN24AppleIntelBaseController16hwSetupDSBMemoryEv",thwSetupDSBMemory},
+			{"__ZN17AppleIntelPortHAL13probePortModeEv",tprobePortMode},*/
+			
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.1",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.2",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.3",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.4",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.5",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.6",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.7",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.8",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.9",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.10",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.11",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.12",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell22hwSetPowerWellStateAuxEbj.cold.1",releaseDoorbell},
+			{"__ZN24AppleIntelBaseController19setCDClockFrequencyEy.cold.1",releaseDoorbell},
+			{"__ZN17AppleIntelPortHAL14enableComboPhyEv.cold.1",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell19enableDisplayEngineEv.cold.1",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell19enableDisplayEngineEv.cold.2",releaseDoorbell},
+			
+			
+			
+			
+			//{"__ZN26AppleIntelDSBAccessManager15WriteRegister32Emj",radWriteRegister32,this->oradWriteRegister32},
+			//{"__ZN26AppleIntelDSBAccessManager24WriteRegister32ImmediateEmj",radWriteRegister32f,this->oradWriteRegister32f},
+			
+			//{"__ZN24AppleIntelBaseController13FBMemMgr_InitEv",FBMemMgr_Init,this->oFBMemMgr_Init},
+			
+			//{"__ZN17AppleIntelPortHAL11getHPDStateEv",getHPDState},
+			
+			{"__ZN31AppleIntelRegisterAccessManager14ReadRegister32Em",raReadRegister32,this->oraReadRegister32},
+			/*{"__ZN31AppleIntelRegisterAccessManager14ReadRegister32EPVvm",raReadRegister32b},
+			
+			{"__ZN31AppleIntelRegisterAccessManager14ReadRegister64Em",raReadRegister64,this->oraReadRegister64},
+			{"__ZN31AppleIntelRegisterAccessManager14ReadRegister64EPVvm",raReadRegister64b},
+			
+			{"__ZN31AppleIntelRegisterAccessManager15WriteRegister32Emj",raWriteRegister32,this->oraWriteRegister32},
+			{"__ZN31AppleIntelRegisterAccessManager15WriteRegister32EPVvmj",raWriteRegister32b},
+			
+			{"__ZN31AppleIntelRegisterAccessManager15WriteRegister64Emy",raWriteRegister64,this->oraWriteRegister64},
+			{"__ZN31AppleIntelRegisterAccessManager15WriteRegister64EPVvmy",raWriteRegister64b},
+			
+			
+			{"__ZN31AppleIntelRegisterAccessManager19FastWriteRegister32Emj",raWriteRegister32f,this->oraWriteRegister32f},
+			*/
+			//{"__ZN15AppleIntelPlane10updateDBUFEjjb",updateDBUF},
+			//{"__ZN15AppleIntelPlane22setupPlanarSurfaceDBUFEv",setupPlanarSurfaceDBUF,this->osetupPlanarSurfaceDBUF},
+			
+			
+			
+			//{"__ZN24AppleIntelBaseController18SafeReadRegister32Em",wrapReadRegister32,	this->owrapReadRegister32},
+			
+			{"__ZN24AppleIntelBaseController21probeCDClockFrequencyEv",wrapProbeCDClockFrequency,	this->orgProbeCDClockFrequency},
+			
+			//{"__ZN20IntelFBClientControl11doAttributeEjPmmS0_S0_P25IOExternalMethodArguments",wrapFBClientDoAttribute,	this->orgFBClientDoAttribute},
+
+			
+			{"__ZN24AppleIntelBaseController13probeBootPipeEPbPN17AppleIntelPortHAL3DDIE",probeBootPipe,	this->oprobeBootPipe},
+			
+			//{"__ZN19AppleIntelPowerWell4initEP24AppleIntelBaseController",releaseDoorbell},
+			//{"__ZN24AppleIntelBaseController5startEP9IOService",tgstart,this->otgstart},
+			//{"__ZN21AppleIntelFramebuffer18depthFromAttributeEj",wdepthFromAttribute},
+			
+			
+			//{"__ZN15AppleIntelPlane19updateRegisterCacheEv",releaseDoorbell},
+			//{"__ZN16AppleIntelScaler19updateRegisterCacheEv",releaseDoorbell},
+			
+			
+		};
+		SYSLOG_COND(!RouteRequestPlus::routeAll(patcher, index, requests, address, size), "nblue","Failed to route symbols");
+		
+		//powerwell
+		static const uint8_t f1[]= {0x49, 0x83, 0xfe, 0x09, 0x0f, 0x85, 0xc8, 0xfe, 0xff, 0xff};
+		static const uint8_t r1[]= {0x49, 0x83, 0xfe, 0x04, 0x0f, 0x85, 0xc8, 0xfe, 0xff, 0xff};
+		
+		//osinfo
+		static const uint8_t f2[]= {0xc7, 0x05, 0x07, 0x81, 0x10, 0x00, 0x01, 0x03, 0x09, 0x03, 0xb8, 0x00, 0x00, 0x00, 0x04};
+		static const uint8_t r2[]= {0xc7, 0x05, 0x07, 0x81, 0x10, 0x00, 0x01, 0x03, 0x04, 0x03, 0xb8, 0x00, 0x00, 0x00, 0x04};
+		
+		//conn
+		static const uint8_t f3[]= {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00};
+		
+		static const uint8_t r3[]= {0x02, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0xC1, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+		
+		//mem
+		static const uint8_t f4[]= {0x85, 0xc0, 0x0f, 0x84, 0x8c, 0x00, 0x00, 0x00, 0x48, 0xff, 0x05, 0xd0, 0x6b, 0x0f, 0x00, 0xbf, 0x01, 0x00, 0x00, 0x00};
+		static const uint8_t r4[]= {0x85, 0xc0, 0x48, 0xe9, 0x8c, 0x00, 0x00, 0x00, 0x48, 0xff, 0x05, 0xd0, 0x6b, 0x0f, 0x00, 0xbf, 0x01, 0x00, 0x00, 0x00};
+		
+		//powerwellpg
+		static const uint8_t f5[]= {0x41, 0x80, 0x7c, 0x24, 0x18, 0x00, 0x74, 0x62, 0x48, 0xff, 0x05, 0x67, 0x27, 0x0d, 0x00};
+		static const uint8_t r5[]= {0x41, 0x80, 0x7c, 0x24, 0x18, 0x00, 0x90, 0x90, 0x48, 0xff, 0x05, 0x67, 0x27, 0x0d, 0x00};
+		//powerwellpg
+		static const uint8_t f5a[]= {0x41, 0x80, 0x7e, 0x18, 0x00, 0x74, 0x55, 0x48, 0xff, 0x05, 0x8a, 0x1a, 0x0d, 0x00};
+		static const uint8_t r5a[]= {0x41, 0x80, 0x7e, 0x18, 0x00, 0x90, 0x90, 0x48, 0xff, 0x05, 0x8a, 0x1a, 0x0d, 0x00};
+		//aux
+		static const uint8_t f5b[]= {0x41, 0x80, 0x7e, 0x18, 0x00, 0x74, 0x64, 0x48, 0xff, 0x05, 0x57, 0x2d, 0x0d, 0x00, 0xbf, 0x08, 0x00, 0x00, 0x00};
+		static const uint8_t r5b[]= {0x41, 0x80, 0x7e, 0x18, 0x00, 0x90, 0x90, 0x48, 0xff, 0x05, 0x57, 0x2d, 0x0d, 0x00, 0xbf, 0x08, 0x00, 0x00, 0x00};
+		//all
+		static const uint8_t f5c[]= {0x41, 0x80, 0x7e, 0x18, 0x00, 0x0f, 0x84, 0x3a, 0x01, 0x00, 0x00, 0x48, 0xff, 0x05, 0x65, 0x25, 0x0d, 0x00};
+		static const uint8_t r5c[]= {0x41, 0x80, 0x7e, 0x18, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x48, 0xff, 0x05, 0x65, 0x25, 0x0d, 0x00};
+		//aux
+		static const uint8_t f5d[]= {0x41, 0x80, 0x7e, 0x18, 0x00, 0x74, 0x55, 0x48, 0xff, 0x05, 0x08, 0x12, 0x0d, 0x00, 0xbf, 0x08, 0x00, 0x00, 0x00};
+		static const uint8_t r5d[]= {0x41, 0x80, 0x7e, 0x18, 0x00, 0x90, 0x90, 0x48, 0xff, 0x05, 0x08, 0x12, 0x0d, 0x00, 0xbf, 0x08, 0x00, 0x00, 0x00};
+		
+		//agdc
+		static const uint8_t f6[]= {0xe8, 0x8c, 0xac, 0x04, 0x00, 0xbf, 0x08, 0x00, 0x00, 0x00, 0xbe, 0x06, 0x00, 0x00, 0x00, 0xe8, 0x8b, 0xf5, 0x02, 0x00, 0x84, 0xc0, 0x74, 0x39};
+		static const uint8_t r6[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xeb, 0x39};
+		
+		//ReadRegister64
+		static const uint8_t f7[]= {0x83, 0xc0, 0xfc, 0x48, 0x39, 0xf0, 0x76, 0x11, 0x48, 0x8b, 0x47, 0x50, 0x48, 0xff, 0x05, 0xca, 0xf5, 0x0c, 0x00};
+		static const uint8_t r7[]= {0x83, 0xc0, 0xf8, 0x48, 0x39, 0xf0, 0x76, 0x11, 0x48, 0x8b, 0x47, 0x50, 0x48, 0xff, 0x05, 0xca, 0xf5, 0x0c, 0x00};
+
+		//wellini
+		static const uint8_t f8[]= {0xff, 0x91, 0x90, 0x01, 0x00, 0x00, 0x83, 0xf8, 0x02, 0x0f, 0x84, 0xec, 0x00, 0x00, 0x00};
+		static const uint8_t r8[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+		
+		//pipe
+		static const uint8_t f9[]= {0xbe, 0x00, 0x04, 0x06, 0x00};
+		static const uint8_t r9[]= {0xbe, 0x00, 0xf4, 0x06, 0x00};
+		static const uint8_t f9b[]= {0x74, 0x13, 0x48, 0xff, 0x05, 0x61, 0x36, 0x0d, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x01, 0x00, 0x00, 0x00, 0xe8, 0xf5, 0xd6, 0xf9, 0xff, 0x48, 0x85, 0xc0, 0x74, 0x13, 0x48, 0xff, 0x05, 0x47, 0x36, 0x0d, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x02, 0x00, 0x00, 0x00, 0xe8, 0xd3, 0xd6, 0xf9, 0xff, 0x48, 0x85, 0xc0, 0x74, 0x13};
+		static const uint8_t r9b[]= {0xeb, 0x13, 0x48, 0xff, 0x05, 0x61, 0x36, 0x0d, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x01, 0x00, 0x00, 0x00, 0xe8, 0xf5, 0xd6, 0xf9, 0xff, 0x48, 0x85, 0xc0, 0xeb, 0x13, 0x48, 0xff, 0x05, 0x47, 0x36, 0x0d, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x02, 0x00, 0x00, 0x00, 0xe8, 0xd3, 0xd6, 0xf9, 0xff, 0x48, 0x85, 0xc0, 0xeb, 0x13};
+		
+		
+		
+
+		//AAPL0%d,IgnoreConnection
+		//AAPL0%d,no-hotplug-interrupt
+		
+		LookupPatchPlus const patches[] = {
+			//{&kextG11FBT, f1, r1, arrsize(f1),	1},
+			//{&kextG11FBT, f2, r2, arrsize(f2),	1},
+			//{&kextG11FBT, f3, r3, arrsize(f3),	1},
+			{&kextG11FBT, f4, r4, arrsize(f4),	1},
+			
+			/*{&kextG11FBT, f5, r5, arrsize(f5),	1},
+			{&kextG11FBT, f5a, r5a, arrsize(f5a),	1},
+			{&kextG11FBT, f5b, r5b, arrsize(f5b),	1},
+			{&kextG11FBT, f5c, r5c, arrsize(f5c),	1},
+			{&kextG11FBT, f5d, r5d, arrsize(f5d),	1},*/
+			
+			{&kextG11FBT, f6, r6, arrsize(f6),	1},
+			{&kextG11FBT, f7, r7, arrsize(f7),	1},
+			{&kextG11FBT, f8, r8, arrsize(f8),	1},
+			
+			{&kextG11FBT, f9, r9, arrsize(f9),	6},
+			{&kextG11FBT, f9b, r9b, arrsize(f9b),	1},
+			
+			
+			
+		};
+		
+		SYSLOG_COND(!LookupPatchPlus::applyAll(patcher, patches , address, size), "nblue", "vent Failed to apply patches!");
+		
 		
 		return true;
 	}
@@ -57,8 +234,9 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 		RouteRequestPlus requests[] = {
 			
 		
-			{"__ZL15pmNotifyWrapperjjPyPj",wrapPmNotifyWrapper,	this->orgPmNotifyWrapper},
-			{"__ZN31AppleIntelFramebufferController5probeEP9IOServicePi",wprobe,	this->owprobe},
+			//{"__ZL15pmNotifyWrapperjjPyPj",wrapPmNotifyWrapper,	this->orgPmNotifyWrapper},
+			//{"__ZN31AppleIntelFramebufferController5probeEP9IOServicePi",wprobe,	this->owprobe},
+			//{"__ZN17AppleIntelPortHAL13probePortModeEv",probePortMode,	this->oprobePortMode},
 			
 			
 			//{"__ZN31AppleIntelFramebufferController15hwSetPanelPowerEj",hwSetPanelPower},
@@ -70,10 +248,10 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			{"__ZN31AppleIntelFramebufferController15WriteRegister32Emj",wrapWriteRegister32,	this->owrapWriteRegister32},
 			
 			{"__ZN21AppleIntelFramebuffer18prepareToEnterWakeEv",releaseDoorbell},
-			{"__ZN21AppleIntelFramebuffer17prepareToExitWakeEv",releaseDoorbell},
+			//{"__ZN21AppleIntelFramebuffer17prepareToExitWakeEv",releaseDoorbell},
 			
-			//{"__ZN21AppleIntelFramebuffer18prepareToExitSleepEv",prepareToEnterWake},
-			//{"__ZN21AppleIntelFramebuffer19prepareToEnterSleepEv",prepareToEnterWake},
+			//{"__ZN21AppleIntelFramebuffer18prepareToExitSleepEv",releaseDoorbell},
+			//{"__ZN21AppleIntelFramebuffer19prepareToEnterSleepEv",releaseDoorbell},
 			//{"__ZN21AppleIntelFramebuffer19prepareToEnterSleepEv",prepareToEnterSleep,	this->oprepareToEnterSleep},
 			
 			
@@ -84,13 +262,13 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			
 			//{"__ZN31AppleIntelFramebufferController10LightUpEDPEP21AppleIntelFramebufferP21AppleIntelDisplayPathPK29IODetailedTimingInformationV2",LightUpEDP,	this->oLightUpEDP},
 			
-			
+
 			//{"__ZN14AppleIntelPort14getPortByIndexEj",getPortByIndex,	this->ogetPortByIndex},
 			//{"__ZN31AppleIntelFramebufferController16setupBootDisplayEv",setupBootDisplay,	this->osetupBootDisplay},
 			
-			{"__ZN31AppleIntelFramebufferController5startEP9IOService",start,	this->ostart},
+			//{"__ZN31AppleIntelFramebufferController5startEP9IOService",start,	this->ostart},
 			
-			{"__ZN20IntelFBClientControl11doAttributeEjPmmS0_S0_P25IOExternalMethodArguments",wrapFBClientDoAttribute,	this->orgFBClientDoAttribute},
+			//{"__ZN20IntelFBClientControl11doAttributeEjPmmS0_S0_P25IOExternalMethodArguments",wrapFBClientDoAttribute,	this->orgFBClientDoAttribute},
 			
 			/*{"__ZN31AppleIntelFramebufferController16hwRegsNeedUpdateEP21AppleIntelFramebufferP21AppleIntelDisplayPathP10CRTCParamsPK29IODetailedTimingInformationV2PN16AppleIntelScaler12SCALERPARAMSE", wrapHwRegsNeedUpdate,this->owrapHwRegsNeedUpdate},*/
 				//{"__ZN21AppleIntelFramebuffer19validateDisplayModeEiPPKNS_15ModeDescriptionEPPK29IODetailedTimingInformationV2", fbdebugWrapValidateDisplayMode, this->ofbdebugWrapValidateDisplayMode},
@@ -144,20 +322,6 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
         static const uint8_t f12[] = {0xe8, 0xfc, 0xf9, 0x56, 0xeb, 0x0f, 0xb6, 0xc0, 0x41, 0x89, 0x85, 0x9c, 0x0c, 0x00, 0x00};
         static const uint8_t r12[] = {0xb8, 0x07, 0x00, 0x00, 0x00, 0x0f, 0xb6, 0xc0, 0x41, 0x89, 0x85, 0x9c, 0x0c, 0x00, 0x00};
 		
-		//display power
-		//[drm:pps_init_delays [i915]] panel power up delay 200, power down delay 50, power cycle delay 600
-		//[drm:pps_init_registers [i915]] panel power sequencer register settings: PP_ON 0x7d00001, PP_OFF 0x1f40001, PP_DIV 0x60
-		static const uint8_t f13[] = {0xb8, 0xc4, 0x09, 0xe4, 0x02, 0xba, 0x34, 0x08, 0x7d, 0x00, 0x41, 0xbe, 0x60, 0x00, 0x00, 0x00};
-		static const uint8_t r13[] = {0xb8, 0x01, 0x00, 0xf4, 0x01, 0xba, 0x01, 0x00, 0xd0, 0x07, 0x41, 0xbe, 0x60, 0x00, 0x00, 0x00};
-
-		
-		//prepareToExitWake
-		static const uint8_t f14[] = {0x0f, 0x84, 0x3d, 0x01, 0x00, 0x00, 0x48, 0xff, 0x05, 0xe2, 0xfa, 0x0d, 0x00, 0x80, 0x7f, 0x60, 0x00, 0x74, 0x18, 0x48, 0xff, 0x05, 0xdd, 0xfa, 0x0d, 0x00};
-		static const uint8_t r14[] = {0x48, 0xe9, 0x3d, 0x01, 0x00, 0x00, 0x48, 0xff, 0x05, 0xe2, 0xfa, 0x0d, 0x00, 0x80, 0x7f, 0x60, 0x00, 0x74, 0x18, 0x48, 0xff, 0x05, 0xdd, 0xfa, 0x0d, 0x00};
-		
-		//dutyCycle
-		static const uint8_t f15[] = {0x48, 0x8d, 0x3d, 0xf4, 0xc4, 0x09, 0x00, 0xba, 0x01, 0x00, 0x00, 0x00, 0xe8, 0xe6, 0xbe, 0x59, 0xeb, 0x85, 0xc0, 0x74, 0x21};
-		static const uint8_t r15[] = {0x48, 0x8d, 0x3d, 0xf4, 0xc4, 0x09, 0x00, 0xba, 0x01, 0x00, 0x00, 0x00, 0xe8, 0xe6, 0xbe, 0x59, 0xeb, 0x85, 0xc0, 0x90, 0x90};
 		
 		
 		// AppleIntelFramebufferController::hwSetMode skip hwRegsNeedUpdate
@@ -196,30 +360,28 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 		LookupPatchPlus const patches[] = {
 			{&kextG11FB, f1, r1, arrsize(f1),	1},
 			{&kextG11FB, f1b, r1b, arrsize(f1b),	1},
-			//{&kextG11FB, f2, r2, arrsize(f2),	1},
 
 			
-			{&kextG11FB, f5, r5, arrsize(f5),	1},
+			//{&kextG11FB, f5, r5, arrsize(f5),	1},
 			//{&kextG11FB, f6, r6, arrsize(f6),	1},
 			
 			{&kextG11FB, f8, r8, arrsize(f8),	1},
-			{&kextG11FB, f9, r9, arrsize(f9),	1},
-			{&kextG11FB, f9b, r9b, arrsize(f9b),	1},
+			//{&kextG11FB, f9, r9, arrsize(f9),	1},
+			//{&kextG11FB, f9b, r9b, arrsize(f9b),	1},
 			
 			{&kextG11FB, f10, r10, arrsize(f10),	1},
 			//{&kextG11FB, f10b, r10b, arrsize(f10b),	1},
 			
-			{&kextG11FB, f11, r11, arrsize(f11),	1},
+			//{&kextG11FB, f11, r11, arrsize(f11),	1},
             {&kextG11FB, f12, r12, arrsize(f12),    1},
 			
 			//{&kextG11FB, f13, r13, arrsize(f13),    1},
-			//{&kextG11FB, f14, r14, arrsize(f14),    1},
 			//{&kextG11FB, f15, r15, arrsize(f15),    1},
 			
 		};
 		
-		this->_CSR_PATCH_AX=tgl_dmc_ver2_12_bin;
-		this->_CSR_PATCH_B0plus=tgl_dmc_ver2_12_bin;
+		//this->_CSR_PATCH_AX=tgl_dmc_ver2_12_bin;
+		//this->_CSR_PATCH_B0plus=tgl_dmc_ver2_12_bin;
 		
 		
 		/*auto catalina = getKernelVersion() == KernelVersion::Catalina;
@@ -332,7 +494,7 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			 {"__ZN17IGInterruptBridge17serviceInterruptsERK8IGBitSetILm41EE",serviceInterrupts, this->oserviceInterrupts},
 			 {"__ZN17IGInterruptBridge22readAndClearInterruptsER8IGBitSetILm41EE",readAndClearInterrupts, this->oreadAndClearInterrupts},
 			// {"__ZN5IGGuC21dumpGuCPanicDebugInfoEPKcj",releaseDoorbell},
-			 {"__ZN16IntelAccelerator26SafeForceWakeMultithreadedEbjj",forceWake, this->oforceWake},
+			// {"__ZN16IntelAccelerator26SafeForceWakeMultithreadedEbjj",forceWake, this->oforceWake},
 			// {"__ZN19IGAccelEventMachine21enableSchedulerEventsEv", },
 			// {"__ZN26IGHardwareCommandStreamer513schedDispatchEj", },
 			 
@@ -346,8 +508,8 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			 {"__ZN26IGHardwareCommandStreamer523csbProcessElementSwitchEPK28SGfxContextStatusBufferEntry", csbProcessElementSwitch, this->ocsbProcessElementSwitch},
 			 */
 			 
-			 {"__ZL27ContextStatusBufferValidateRK15IGHwCsExecList5PK28SGfxContextStatusBufferEntry.cold.1", releaseDoorbell},
-			 {"__ZL27ContextStatusBufferValidateRK15IGHwCsExecList5PK28SGfxContextStatusBufferEntry.cold.2", releaseDoorbell},
+			// {"__ZL27ContextStatusBufferValidateRK15IGHwCsExecList5PK28SGfxContextStatusBufferEntry.cold.1", releaseDoorbell},
+			// {"__ZL27ContextStatusBufferValidateRK15IGHwCsExecList5PK28SGfxContextStatusBufferEntry.cold.2", releaseDoorbell},
 			 
 			// {"__ZN12IGScheduler516enableInterruptsEv", enableInterrupts},
 			// {"__ZN12IGScheduler415systemWillSleepEv", wrapSystemWillSleep},
@@ -360,62 +522,6 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 		 };
 		SYSLOG_COND(!RouteRequestPlus::routeAll(patcher, index, requests, address, size), "nblue","Failed to route symbols");
 		
-		/*
-		gKmGen9GuCBinary = patcher.solveSymbol<uint8_t *>(index, "__KmGen11ICLGuCBinary", address, size);
-		if (gKmGen9GuCBinary) {
-			DBGLOG("nblue", "obtained __KmGen9GuCBinary");
-
-			auto loadGuC = patcher.solveSymbol(index, "__ZN13IGHardwareGuC13loadGuCBinaryEv", address, size);
-			if (loadGuC) {
-				DBGLOG("nblue", "obtained IGHardwareGuC::loadGuCBinary");
-
-				// Lookup the assignment to the size register.
-				uint8_t sizeReg[] {0x10, 0xC3, 0x00, 0x00};
-				auto pos    = reinterpret_cast<uint8_t *>(loadGuC);
-				auto endPos = pos + PAGE_SIZE;
-				while (memcmp(pos, sizeReg, sizeof(sizeReg)) != 0 && pos < endPos)
-					pos++;
-
-				// Verify and store the size pointer
-				if (pos != endPos) {
-					pos += sizeof(uint32_t);
-					firmwareSizePointer = reinterpret_cast<uint32_t *>(pos);
-					DBGLOG("nblue", "discovered firmware size: %u bytes", *firmwareSizePointer);
-					// Firmware size must not be bigger than 1 MB
-					if ((*firmwareSizePointer & 0xFFFFF) == *firmwareSizePointer)
-						// Firmware follows the signature
-						signaturePointer = gKmGen9GuCBinary + *firmwareSizePointer;
-					else
-						firmwareSizePointer = nullptr;
-				}
-
-				if (firmwareSizePointer) {
-					orgLoadGuCBinary = patcher.routeFunction(loadGuC, reinterpret_cast<mach_vm_address_t>(wrapLoadGuCBinary), true);
-					if (patcher.getError() == KernelPatcher::Error::NoError) {
-						DBGLOG("nblue", "routed IGHardwareGuC::loadGuCBinary");
-
-						KernelPatcher::RouteRequest requests[] {
-							{"__ZN12IGScheduler412loadFirmwareEv", wrapLoadFirmware, orgLoadFirmware},
-							{"__ZN13IGHardwareGuC16initSchedControlEv", wrapInitSchedControl, orgInitSchedControl},
-							{"__ZN20IGSharedMappedBuffer11withOptionsEP11IGAccelTaskmjj", wrapIgBufferWithOptions, orgIgBufferWithOptions},
-							{"__ZNK14IGMappedBuffer20getGPUVirtualAddressEv", wrapIgBufferGetGpuVirtualAddress, orgIgBufferGetGpuVirtualAddress},
-						};
-						patcher.routeMultiple(index, requests, address, size);
-					} else {
-						SYSLOG("nblue", "failed to route IGHardwareGuC::loadGuCBinary %d", patcher.getError());
-						patcher.clearError();
-					}
-				} else {
-					SYSLOG("nblue", "failed to find GuC firmware size assignment");
-				}
-			} else {
-				SYSLOG("nblue", "failed to resolve IGHardwareGuC::loadGuCBinary %d", patcher.getError());
-				patcher.clearError();
-			}
-		} else {
-			SYSLOG("nblue", "failed to resolve __KmGen9GuCBinary %d", patcher.getError());
-			patcher.clearError();
-		}*/
 		
 		//if (!patchRCSCheck(orgSubmitExecList))
 		//	SYSLOG("nblue", "Failed to patch RCS check.");
@@ -469,25 +575,6 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
             0xb8, 0x07, 0x00, 0x00, 0x00, 0x0f, 0xb6, 0xc0, 0x41, 0x89, 0x86, 0x40, 0x11, 0x00, 0x00
         };
 		
-		//orgSubmitExecList
-		static const uint8_t f6[] = {
-			0x80, 0x39, 0x00, 0x0f, 0x85, 0xc2, 0x00, 0x00, 0x00
-		};
-		static const uint8_t r6[] = {
-			0x80, 0x39, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90
-		};
-		static const uint8_t f6a[] = {
-			0x80, 0x39, 0x00, 0x0f, 0x85, 0x21, 0xff, 0xff, 0xff
-		};
-		static const uint8_t r6a[] = {
-			0x80, 0x39, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90
-		};
-		static const uint8_t f6b[] = {
-			0x80, 0x39, 0x00, 0x0f, 0x85, 0xa4, 0x00, 0x00, 0x00
-		};
-		static const uint8_t r6b[] = {
-			0x80, 0x39, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90
-		};
 		
 		//gen11
 		static const uint8_t f7[] = {
@@ -512,12 +599,9 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			{&kextG11HW, f3, r3, arrsize(f3),	22},
 			{&kextG11HW, f3a, r3a, arrsize(f3a),	1},
 			
-			{&kextG11HW, f3b, r3b, arrsize(f3b),	1},
+			//{&kextG11HW, f3b, r3b, arrsize(f3b),	1},
 			
-			{&kextG11HW, f6, r6, arrsize(f6),	1},
-			{&kextG11HW, f6a, r6a, arrsize(f6a),	1},
-			{&kextG11HW, f6b, r6b, arrsize(f6b),	1},
-			
+		
 			{&kextG11HW, f7, r7, arrsize(f7),	9},//12
 			
 		};
@@ -531,7 +615,66 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
         DBGLOG("nblue", "Loaded AppleIntelICLGraphics!");
 
 		return true;
-    }
+    } else if (kextG11HWT.loadIndex == index) {
+		NBlue::callback->setRMMIOIfNecessary();
+
+		SolveRequestPlus solveRequests[] = {
+			
+			//{"__ZN26IGHardwareCommandStreamer514submitExecListEj", this->orgSubmitExecList},
+			
+		};
+		//SYSLOG_COND(!SolveRequestPlus::solveAll(patcher, index, solveRequests, address, size), "nblue",	"Failed to resolve symbols");
+		 
+		 RouteRequestPlus requests[] = {
+			 
+			 {"__ZN16IntelAccelerator20_PAVPCommandCallbackEP8OSObject22PAVPSessionCommandID_tjPj", wrapPavpSessionCallback, this->orgPavpSessionCallback},
+
+		 };
+		SYSLOG_COND(!RouteRequestPlus::routeAll(patcher, index, requests, address, size), "nblue","Failed to route symbols");
+		
+		//sku panic
+		static const uint8_t f3[] = {
+			0x8b, 0x3e, 0x81, 0xff, 0xee, 0xbe, 0xaf, 0xde, 0x7f, 0x15, 0x81, 0xff, 0x86, 0x80, 0x40, 0x9a, 0x74, 0x2d
+		};
+		static const uint8_t r3[] = {
+			0x8b, 0x3e, 0x81, 0xff, 0xee, 0xbe, 0xaf, 0xde, 0x90, 0x90, 0x81, 0xff, 0x86, 0x80, 0x40, 0x9a, 0xeb, 0x2d
+		};
+		static const uint8_t f3a[] = {//gt1
+			0x41, 0xc7, 0x86, 0x20, 0x11, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0xe9, 0xda, 0xfc, 0xff, 0xff
+		};
+		static const uint8_t r3a[] = {
+			0x41, 0xc7, 0x86, 0x20, 0x11, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xe9, 0xda, 0xfc, 0xff, 0xff
+		};
+		static const uint8_t f3b[] = {//slices
+			0x74, 0x23, 0x83, 0xf9, 0x02, 0x0f, 0x85, 0x89, 0x01, 0x00, 0x00, 0x83, 0xfe, 0x01, 0x75, 0x59, 0x83, 0xfa, 0x0c, 0x75, 0x54, 0x41, 0xc7, 0x87, 0x64, 0x11, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00
+		};
+		static const uint8_t r3b[] = {
+			0x90, 0x90, 0x83, 0xf9, 0x02, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x83, 0xfe, 0x01, 0x90, 0x90, 0x83, 0xfa, 0x0c, 0x90, 0x90, 0x41, 0xc7, 0x87, 0x64, 0x11, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00
+		};
+		
+		static const uint8_t f3c[] = { // skip -allow3d
+			0x41, 0x89, 0x86, 0x14, 0x11, 0x00, 0x00, 0x41, 0x8b, 0x86, 0x18, 0x11, 0x00, 0x00, 0x3d, 0xef, 0xbe, 0xaf, 0xde, 0x74, 0x2a
+		};
+		static const uint8_t r3c[] = {
+			0x41, 0x89, 0x86, 0x14, 0x11, 0x00, 0x00, 0x41, 0x8b, 0x86, 0x18, 0x11, 0x00, 0x00, 0x3d, 0xef, 0xbe, 0xaf, 0xde, 0xeb, 0x2a
+		};
+		
+
+		LookupPatchPlus const patches[] = {
+
+			{&kextG11HWT, f3, r3, arrsize(f3),	1},
+			//{&kextG11HWT, f3a, r3a, arrsize(f3a),	1},
+			{&kextG11HWT, f3b, r3b, arrsize(f3b),	1},
+			//{&kextG11HWT, f3c, r3c, arrsize(f3c),	1},
+			
+		};
+		
+
+		SYSLOG_COND(!LookupPatchPlus::applyAll(patcher, patches , address, size), "nblue", "vent Failed to apply patches!");
+		DBGLOG("nblue", "Loaded AppleIntelTGLGraphics!");
+
+		return true;
+	}
 
     return false;
 }
@@ -815,7 +958,10 @@ void Gen11::sanitizeCDClockFrequency(void *that) {
 	uint32_t val;
 
 	//auto referenceFrequency = callback->wrapReadRegister32(that, SKL_DSSM) & ICL_DSSM_CDCLK_PLL_REFCLK_MASK;
-	auto referenceFrequency = callback->wrapReadRegister32(that, ICL_REG_DSSM) >> 29;
+	
+	
+	auto referenceFrequency = NBlue::callback-> readReg32( ICL_REG_DSSM) >> 29;
+	//auto referenceFrequency = callback->wrapReadRegister32(that, ICL_REG_DSSM) >> 29;
 	uint32_t newCdclkFrequency = 0;
 	uint32_t newPLLFrequency = 0;
 	switch (referenceFrequency) {
@@ -854,22 +1000,27 @@ void Gen11::sanitizeCDClockFrequency(void *that) {
 
 uint32_t Gen11::wrapProbeCDClockFrequency(void *that) {
 
-	auto cdclk = callback->wrapReadRegister32(that, ICL_REG_CDCLK_CTL) & CDCLK_FREQ_DECIMAL_MASK;
+	//auto cdclk = callback->wrapReadRegister32(that, ICL_REG_CDCLK_CTL) & CDCLK_FREQ_DECIMAL_MASK;
 
+	auto cdclk =NBlue::callback-> readReg32( ICL_REG_CDCLK_CTL) & CDCLK_FREQ_DECIMAL_MASK;
 	
 	if (cdclk < ICL_CDCLK_DEC_FREQ_THRESHOLD) {
 		sanitizeCDClockFrequency(that);
 	}
 	
-	auto retVal = callback->orgProbeCDClockFrequency(that);
-	return retVal;
+	//auto retVal = callback->orgProbeCDClockFrequency(that);
+	
+	//auto referenceFrequency = callback->wrapReadRegister32(that, ICL_REG_DSSM) >> 29;
+	auto referenceFrequency = NBlue::callback-> readReg32( ICL_REG_DSSM) >> 29;
+	return referenceFrequency;
+	
+	//return retVal;
 }
 
 
 bool Gen11::start(void *that,void  *param_1)
 {
 	callback->framecont=that;
-	return false;
 	
 	auto ret= FunctionCast(start, callback->ostart)(that,param_1);
 	
@@ -1177,3 +1328,296 @@ void * Gen11::wprobe(void *that,void *param_1,int *param_2)
 	return that;
 	
 }
+
+void *contr;
+bool  Gen11::tgstart(void *that,void *param_1)
+{
+	contr=that;
+	FunctionCast(tgstart, callback->otgstart)(that, param_1);
+	return true;
+	
+}
+
+void Gen11::FBMemMgr_Init()
+{
+	FunctionCast(FBMemMgr_Init, callback->oFBMemMgr_Init)();
+
+	/*IODeviceMemory * m= NBlue::callback->iGPU->getDeviceMemoryWithIndex(0);
+	IODeviceMemory *dm;
+	m->withSubRange(dm,0x4180000,0x12000);//fDSBBufferBytes = 73728, fDSBBufferBaseOffset = 68681728
+	IOMemoryMap *dsb=dm->map();
+	
+	IODeviceMemory *dm2;
+	m->withSubRange(dm2,0x4192000,0x3000);//fConnectionStatusBytes = 12288, fConnectionStatusOffset = 68755456
+	IOMemoryMap *dsb2=dm2->map();*/
+	
+}
+
+uint32_t Gen11::probePortMode()
+{
+	auto ret=FunctionCast(probePortMode, callback->oprobePortMode)();
+	return ret;
+};
+
+extern "C" void Gen11::tWriteRegister32(unsigned long a, unsigned int b)
+{
+	NBlue::callback->writeReg32(a,b);
+};
+extern "C" void Gen11::tWriteRegister64(void volatile* a, unsigned long b, unsigned long long c)
+{
+	NBlue::callback->writeReg64(b,c);
+};
+extern "C" unsigned int Gen11::tReadRegister32(unsigned long a)
+{
+		return NBlue::callback->readReg32(a);
+};
+extern "C" unsigned long long Gen11::tReadRegister64(void volatile* a, unsigned long b)
+{
+		return NBlue::callback->readReg64(b);
+};
+extern "C" uint64_t Gen11::tgetPMTNow()
+{
+	uint64_t local_28 = 0;
+	uint64_t local_20 = 0;
+	clock_get_uptime(&local_28);
+	absolutetime_to_nanoseconds(local_28,&local_20);
+	return local_20;
+};
+extern "C" bool Gen11::thwSetupDSBMemory()
+{
+	return 0;
+};
+
+extern "C" uint32_t Gen11::tprobePortMode()
+{
+	if (Gen11::callback)
+	return Gen11::callback->probePortMode();
+	return 0;
+};
+
+uint32_t Gen11::wdepthFromAttribute(void *that,uint param_1)
+{
+	return 0x1e;
+};
+
+uint32_t Gen11::raReadRegister32(void *that,unsigned long param_1)
+{
+	return  NBlue::callback-> readReg32(param_1);
+	if (!static_cast<uint8_t *>(that) + 0x60)  return 0;
+	if (!static_cast<uint8_t *>(that) + 0x50)  return 0;
+	//if (!*reinterpret_cast<int *>(static_cast<uint8_t *>(that) + 0x60)) return 0;
+	//if (!*reinterpret_cast<long *>(static_cast<uint8_t *>(that) + 0x50)) return 0;
+	auto ret=FunctionCast(raReadRegister32, callback->oraReadRegister32)(that,param_1);
+	return ret;
+};
+
+unsigned long Gen11::raReadRegister32b(void *that,void *param_1,unsigned long param_2)
+{
+	return  NBlue::callback-> readReg32((long)param_1 + param_2);
+};
+
+
+uint64_t Gen11::raReadRegister64(void *that,unsigned long param_1)
+{
+	return  NBlue::callback-> readReg64( param_1);
+};
+uint64_t Gen11::raReadRegister64b(void *that,void *param_1,unsigned long param_2)
+{
+	return  NBlue::callback-> readReg64((long)param_1 + param_2);
+};
+
+void Gen11::radWriteRegister32(void *that,unsigned long param_1, unsigned int param_2)
+{
+	radWriteRegister32f( that,param_1,param_2);
+};
+
+void Gen11::radWriteRegister32f(void *that,unsigned long param_1, unsigned int param_2)
+{
+	FunctionCast(radWriteRegister32f, callback->oradWriteRegister32f)( that,param_1,param_2);
+};
+
+void Gen11::raWriteRegister32(void *that,unsigned long param_1, unsigned int param_2)
+{
+	raWriteRegister32f( that,param_1,param_2);
+};
+
+void Gen11::raWriteRegister32f(void *that,unsigned long param_1, unsigned int param_2)
+{
+	FunctionCast(raWriteRegister32f, callback->oraWriteRegister32f)( that,param_1,param_2);
+};
+
+void Gen11::raWriteRegister32b(void *that,void *param_1,unsigned long param_2, unsigned int param_3)
+{
+	NBlue::callback-> writeReg32( (long)param_1 + param_2,param_3);
+};
+void Gen11::raWriteRegister64(void *that,unsigned long param_1,unsigned long long param_2)
+{
+	 NBlue::callback-> writeReg64( param_1,param_2);
+};
+
+void Gen11::raWriteRegister64b(void *that,void *param_1,unsigned long param_2,unsigned long long param_3)
+{
+	 NBlue::callback-> writeReg64( (long)param_1 + param_2,param_3);
+};
+
+void Gen11::setupPlanarSurfaceDBUF()
+{
+	FunctionCast(setupPlanarSurfaceDBUF, callback->osetupPlanarSurfaceDBUF)();
+};
+
+void Gen11::updateDBUF(void *that,uint param_1,uint param_2,bool param_3)
+{
+	//setupPlanarSurfaceDBUF();
+};
+
+unsigned long Gen11::getHPDState(void *that)
+{
+	unsigned int uVar3 =NBlue::callback-> readReg32(0xc4000);
+	unsigned int uVar4 =NBlue::callback-> readReg32(0x1638a0);
+	unsigned int *puVar2 = (unsigned int *)(static_cast<uint8_t *>(that) + 0x548);
+	unsigned long uVar5;
+	
+	switch(*puVar2) {
+	case 0:
+	  uVar5 = (unsigned long)(uVar3 >> 0x10 & 1);
+	  goto LAB_000741fe;
+	case 1:
+	  uVar5 = (unsigned long)(uVar3 >> 0x11 & 1);
+	  goto LAB_000741fe;
+	case 2:
+	  if (uVar4 == 0xffffffff) {
+  LAB_00074125:
+		uVar5 = 0;
+		goto LAB_000741fe;
+	  }
+	  if ((uVar4 & 0x40) == 0) {
+		if ((uVar4 & 0x20) == 0) {
+		}
+		uVar5 = (unsigned long)(uVar4 >> 5 & 1);
+		goto LAB_000741fe;
+	  }
+	  uVar5 = 1;
+	  if ((uVar4 & 0x20) == 0) goto LAB_000741fe;
+	  break;
+	case 3:
+	  if (uVar4 == 0xffffffff) {
+		goto LAB_00074125;
+	  }
+	  if ((uVar4 >> 0xe & 1) == 0) {
+		if ((uVar4 >> 0xd & 1) == 0) {
+		}
+		uVar5 = (unsigned long)(uVar4 >> 0xd & 1);
+		goto LAB_000741fe;
+	  }
+	  uVar5 = 1;
+	  if ((uVar4 >> 0xd & 1) == 0) goto LAB_000741fe;
+	  break;
+	case 4:
+	  if (uVar4 == 0xffffffff) {
+		goto LAB_00074125;
+	  }
+	  if ((uVar4 >> 0x16 & 1) == 0) {
+		if ((uVar4 >> 0x15 & 1) == 0) {
+		}
+		uVar5 = (unsigned long)(uVar4 >> 0x15 & 1);
+		goto LAB_000741fe;
+	  }
+	  uVar5 = 1;
+	  if ((uVar4 >> 0x15 & 1) == 0) goto LAB_000741fe;
+	  break;
+	case 5:
+	  if (uVar4 == 0xffffffff) {
+		goto LAB_00074125;
+	  }
+	  if ((uVar4 >> 0x1e & 1) == 0) {
+		if ((uVar4 >> 0x1d & 1) == 0) {
+		}
+		uVar5 = (unsigned long)(uVar4 >> 0x1d & 1);
+		goto LAB_000741fe;
+	  }
+	  uVar5 = 1;
+	  if ((uVar4 >> 0x1d & 1) == 0) goto LAB_000741fe;
+	  break;
+	default:
+	  uVar5 = 0;
+	  goto LAB_000741fe;
+	}
+	uVar5 = 1;
+LAB_000741fe:
+	return uVar5;
+};
+
+int 	Gen11::probeBootPipe(void *that,bool *param_1,uint32_t *param_2)
+{
+	//FunctionCast(probeBootPipe, callback->oprobeBootPipe)();
+	uint uVar1;
+	uint uVar2;
+	uint uVar3;
+	uint uVar4;
+	int iVar5;
+	
+	if (param_1 != (bool *)0x0) {
+	  *param_1 = true;
+	}
+	if (param_2 != (uint32_t *)0x0) *(uint32_t *)param_2 = 0;
+	
+	return 0;
+	/*
+	uVar1 = NBlue::callback-> readReg32(0x6f400);
+	uVar2 = NBlue::callback-> readReg32(0x60400);
+	uVar3 = NBlue::callback-> readReg32(0x61400);
+	uVar4 = NBlue::callback-> readReg32(0x62400);
+	iVar5 = 0;
+	if ((int)uVar1 < 0) {
+	  uVar2 = uVar1;
+	}
+	else if ((int)uVar2 < 0) {
+	}
+	else if ((int)uVar3 < 0) {
+	  iVar5 = 1;
+	  uVar2 = uVar3;
+	}
+	else {
+	  if (-1 < (int)uVar4) {
+		iVar5 = 0xffff;
+		uVar2 = 0;
+		goto LAB_000504c0;
+	  }
+	  iVar5 = 2;
+	  uVar2 = uVar4;
+	}
+  LAB_000504c0:
+
+	if (param_1 != (bool *)0x0) {
+	  *param_1 = (uVar1 >> 0x1f,0);
+	}
+	if (param_2 != (uint32_t *)0x0) {
+	  if (iVar5 != 0xffff) {
+		uVar2 = uVar2 >> 0x1c & 7;
+		switch(uVar2) {
+		case 0:
+		  *(uint32_t *)param_2 = 0;
+		  return iVar5;
+		case 1:
+		  *(uint32_t *)param_2 = 1;
+		  return iVar5;
+		case 2:
+		  *(uint32_t *)param_2 = 2;
+		  return iVar5;
+		case 3:
+		  *(uint32_t *)param_2 = 3;
+		  return iVar5;
+		case 4:
+		  *(uint32_t *)param_2 = 4;
+		  return iVar5;
+		case 5:
+		  *(uint32_t *)param_2 = 5;
+		  return iVar5;
+		default:
+
+		}
+	  }
+	  iVar5 = 0xffff;
+	}
+	return iVar5;*/
+};

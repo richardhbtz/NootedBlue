@@ -44,11 +44,7 @@ class EXPORT PRODUCT_NAME : public IOService {
 };*/
 
 class NBlue {
-    friend class Gen8;
-    friend class Gen9;
-    friend class Gen9_5;
     friend class Gen11;
-    friend class HSW;
 	friend class DYLDPatches;
 
     public:
@@ -74,16 +70,36 @@ class NBlue {
     private:
 	
 	UInt32 readReg32(UInt32 reg) {
-		if (reg * 4 < this->rmmio->getLength()) {
+		if (reg * sizeof(uint32_t) < this->rmmio->getLength()) {
 			return this->rmmioPtr[reg];
 		} else {
+			//return 0;
 			this->rmmioPtr[mmPCIE_INDEX2] = reg;
 			return this->rmmioPtr[mmPCIE_DATA2];
 		}
 	}
 
 	void writeReg32(UInt32 reg, UInt32 val) {
-		if ((reg * 4) < this->rmmio->getLength()) {
+		if ((reg * sizeof(uint32_t)) < this->rmmio->getLength()) {
+			this->rmmioPtr[reg] = val;
+		} else {
+			this->rmmioPtr[mmPCIE_INDEX2] = reg;
+			this->rmmioPtr[mmPCIE_DATA2] = val;
+		}
+	}
+	
+	UInt64 readReg64(UInt32 reg) {
+		if (reg * sizeof(uint64_t) < this->rmmio->getLength()) {
+			return this->rmmioPtr[reg];
+		} else {
+			//return 0;
+			this->rmmioPtr[mmPCIE_INDEX2] = reg;
+			return this->rmmioPtr[mmPCIE_DATA2];
+		}
+	}
+
+	void writeReg64(UInt32 reg, UInt64 val) {
+		if ((reg * sizeof(uint64_t)) < this->rmmio->getLength()) {
 			this->rmmioPtr[reg] = val;
 		} else {
 			this->rmmioPtr[mmPCIE_INDEX2] = reg;
@@ -104,7 +120,7 @@ class NBlue {
 	IOMemoryMap *rmmio {nullptr};
 	volatile UInt32 *rmmioPtr {nullptr};
 
-    
+
 	
 };
 

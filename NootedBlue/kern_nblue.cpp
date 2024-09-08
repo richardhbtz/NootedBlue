@@ -69,11 +69,11 @@ void NBlue::processPatcher(KernelPatcher &patcher) {
 		
 
         static uint8_t builtin[] = {0x00};
-		//static uint8_t builtin2[] = {0x02, 0x00, 0x5c, 0x8A};
-		//static uint8_t builtin3[] = {0x5c, 0x8A,0x00,0x00};
+		static uint8_t builtin2[] = {0x02, 0x00, 0x5c, 0x8A};
+		static uint8_t builtin3[] = {0x5c, 0x8A,0x00,0x00};
 		
-		static uint8_t builtin2[] = {0x00, 0x00, 0x49, 0x9A};
-		static uint8_t builtin3[] = {0x49, 0x9A,0x00,0x00};
+		//static uint8_t builtin2[] = {0x00, 0x00, 0x49, 0x9A};
+		//static uint8_t builtin3[] = {0x49, 0x9A,0x00,0x00};
 
 		WIOKit::renameDevice(this->iGPU, "IGPU");
 		WIOKit::awaitPublishing(this->iGPU);
@@ -242,8 +242,8 @@ void NBlue::processPatcher(KernelPatcher &patcher) {
 		//to reduce sampler power.
 		//writeReg32(GEN10_DFR_RATIO_EN_AND_CHICKEN ,DFR_DISABLE );
 #endif
-		KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead16, configRead16, &orgConfigRead16);
-		KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead32, configRead32, &orgConfigRead32);
+		//KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead16, configRead16, &orgConfigRead16);
+		//KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead32, configRead32, &orgConfigRead32);
 
         DeviceInfo::deleter(devInfo);
 		
@@ -261,8 +261,6 @@ void NBlue::setRMMIOIfNecessary() {
 	if (UNLIKELY(!this->rmmio || !this->rmmio->getLength())) {
 		this->rmmio = this->iGPU->mapDeviceMemoryWithRegister(kIOPCIConfigBaseAddress0);// ????
 		this->rmmioPtr = reinterpret_cast<volatile uint32_t *>(this->rmmio->getVirtualAddress());
-		intel_ip_version ip;
-
 	}
 }
 
@@ -405,3 +403,4 @@ bool NBlue::wrapApplePanelSetDisplay(IOService *that, IODisplay *display) {
 	bool ret = FunctionCast(wrapApplePanelSetDisplay, callback->orgApplePanelSetDisplay)(that, display);
 	return ret;
 }
+

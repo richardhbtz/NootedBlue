@@ -783,12 +783,11 @@ enum intel_pch {
 	PCH_LNL,
 };
 
+
+
 class Gen11 {
 	//friend class Gen9_5;
-public:
-	void init();
-	static Gen11 *callback;
-	bool processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size);
+
 private:
 	
 	
@@ -872,6 +871,72 @@ private:
 	
 	static void * wprobe(void *that,void *param_1,int *param_2);
 	mach_vm_address_t owprobe {};
+	
+	static bool  tgstart(void *that,void *param_1);
+	mach_vm_address_t otgstart {};
+	
+
+	static uint32_t probePortMode();
+	mach_vm_address_t oprobePortMode {};
+	
+	static uint32_t wdepthFromAttribute(void *that,uint param_1);
+	
+	static uint32_t raReadRegister32(void *that,unsigned long param_1);
+	mach_vm_address_t oraReadRegister32 {};
+	
+	static unsigned long raReadRegister32b(void *that,void *param_1,unsigned long param_2);
+	
+	static uint64_t raReadRegister64(void *that,unsigned long param_1);
+	mach_vm_address_t oraReadRegister64 {};
+	
+	static uint64_t raReadRegister64b(void *that,void *param_1,unsigned long param_2);
+	
+	static void radWriteRegister32(void *that,unsigned long param_1, unsigned int param_2);
+	mach_vm_address_t oradWriteRegister32 {};
+	static void radWriteRegister32f(void *that,unsigned long param_1, unsigned int param_2);
+	mach_vm_address_t oradWriteRegister32f {};
+	
+	static void raWriteRegister32(void *that,unsigned long param_1, unsigned int param_2);
+	mach_vm_address_t oraWriteRegister32 {};
+	
+	static void raWriteRegister32b(void *that,void *param_1,unsigned long param_2, unsigned int param_3);
+	
+	static void raWriteRegister32f(void *that,unsigned long param_1, unsigned int param_2);
+	mach_vm_address_t oraWriteRegister32f {};
+	
+	static void raWriteRegister64(void *that,unsigned long param_1,unsigned long long param_2);
+	mach_vm_address_t oraWriteRegister64 {};
+	
+	static void raWriteRegister64b(void *that,void *param_1,unsigned long param_2,unsigned long long param_3);
+	
+	static unsigned long getHPDState(void *that);
+	
+	static void setupPlanarSurfaceDBUF();
+	mach_vm_address_t osetupPlanarSurfaceDBUF {};
+	
+	static void updateDBUF(void *that,uint param_1,uint param_2,bool param_3);
+	
+	static void FBMemMgr_Init();
+	mach_vm_address_t oFBMemMgr_Init {};
+	
+	static int 	probeBootPipe(void *that,bool *param_1,uint32_t *param_2);
+	mach_vm_address_t oprobeBootPipe {};
+	
+public:
+
+	void init();
+	static Gen11 *callback;
+	bool processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size);
+	
+	static void tWriteRegister32(unsigned long a, unsigned int b);
+	static void tWriteRegister64(void volatile* a, unsigned long b, unsigned long long c);
+	static unsigned int tReadRegister32(unsigned long a);
+	static unsigned long long tReadRegister64(void volatile* a, unsigned long b);
+	static uint64_t tgetPMTNow();
+	static bool thwSetupDSBMemory();
+	static uint32_t tprobePortMode();
+	
+	
 };
 
 #endif /* kern_gen8_hpp */

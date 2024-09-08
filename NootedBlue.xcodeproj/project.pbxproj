@@ -14,6 +14,8 @@
 		2E315A622BC6EA4D008411AA /* DYLDPatches.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E315A602BC6EA4D008411AA /* DYLDPatches.cpp */; };
 		2E5BF5832BCC212F0095BDCF /* HDMI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E5BF5812BCC212F0095BDCF /* HDMI.cpp */; };
 		2E5BF5842BCC212F0095BDCF /* HDMI.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2E5BF5822BCC212F0095BDCF /* HDMI.hpp */; };
+		2E7C04D72C8A51F000B07113 /* IGGucBinary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2E7C04D52C8A51F000B07113 /* IGGucBinary.h */; };
+		2E7C04D82C8A51F000B07113 /* IGHucBinary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2E7C04D62C8A51F000B07113 /* IGHucBinary.h */; };
 		2E8EC5462BC80833003B4F59 /* kern_netdbg.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2E8EC5442BC80833003B4F59 /* kern_netdbg.hpp */; };
 		2E8EC5472BC80833003B4F59 /* kern_netdbg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E8EC5452BC80833003B4F59 /* kern_netdbg.cpp */; };
 		2EF921282BA73D45003DCAFC /* kern_guc.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2EF921262BA73D45003DCAFC /* kern_guc.hpp */; };
@@ -54,6 +56,8 @@
 		2E315A602BC6EA4D008411AA /* DYLDPatches.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DYLDPatches.cpp; sourceTree = "<group>"; };
 		2E5BF5812BCC212F0095BDCF /* HDMI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HDMI.cpp; sourceTree = "<group>"; };
 		2E5BF5822BCC212F0095BDCF /* HDMI.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HDMI.hpp; sourceTree = "<group>"; };
+		2E7C04D52C8A51F000B07113 /* IGGucBinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGGucBinary.h; sourceTree = "<group>"; };
+		2E7C04D62C8A51F000B07113 /* IGHucBinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGHucBinary.h; sourceTree = "<group>"; };
 		2E8EC5442BC80833003B4F59 /* kern_netdbg.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = kern_netdbg.hpp; sourceTree = "<group>"; };
 		2E8EC5452BC80833003B4F59 /* kern_netdbg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kern_netdbg.cpp; sourceTree = "<group>"; };
 		2EF921262BA73D45003DCAFC /* kern_guc.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = kern_guc.hpp; sourceTree = "<group>"; };
@@ -116,6 +120,8 @@
 			isa = PBXGroup;
 			children = (
 				1C748C2E1C21952C0024EED2 /* Info.plist */,
+				2E7C04D52C8A51F000B07113 /* IGGucBinary.h */,
+				2E7C04D62C8A51F000B07113 /* IGHucBinary.h */,
 				2E5BF5812BCC212F0095BDCF /* HDMI.cpp */,
 				2E5BF5822BCC212F0095BDCF /* HDMI.hpp */,
 				2E315A602BC6EA4D008411AA /* DYLDPatches.cpp */,
@@ -194,6 +200,8 @@
 				F0AF08BC2A0F373F00B63C2B /* kern_gen11.hpp in Headers */,
 				2E315A612BC6EA4D008411AA /* DYLDPatches.hpp in Headers */,
 				2E1CC3E22BA5DBD9004EC8F6 /* DisplayMergeNub.h in Headers */,
+				2E7C04D82C8A51F000B07113 /* IGHucBinary.h in Headers */,
+				2E7C04D72C8A51F000B07113 /* IGGucBinary.h in Headers */,
 				2E5BF5842BCC212F0095BDCF /* HDMI.hpp in Headers */,
 				2EF921282BA73D45003DCAFC /* kern_guc.hpp in Headers */,
 				F0A4BE592A1996E40031D569 /* kern_model.hpp in Headers */,
@@ -451,6 +459,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = "$(MODULE_VERSION)";
+				DEAD_CODE_STRIPPING = NO;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				GCC_ENABLE_FLOATING_POINT_LIBRARY_CALLS = NO;
 				GCC_ENABLE_KERNEL_DEVELOPMENT = NO;
@@ -492,6 +501,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ChefKissInc.NootedBlue;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUN_CLANG_STATIC_ANALYZER = YES;
+				STRIP_INSTALLED_PRODUCT = YES;
 				WRAPPER_EXTENSION = kext;
 			};
 			name = Debug;
@@ -503,8 +513,9 @@
 				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = "$(MODULE_VERSION)";
-				DEAD_CODE_STRIPPING = YES;
+				DEAD_CODE_STRIPPING = NO;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				GCC_ENABLE_FLOATING_POINT_LIBRARY_CALLS = NO;
 				GCC_ENABLE_KERNEL_DEVELOPMENT = NO;
@@ -519,7 +530,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/MacKernelSDK/Library/x86_64",
 				);
-				LLVM_LTO = YES;
+				LLVM_LTO = NO;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MODULE_NAME = com.ChefKissInc.NootedBlue;
 				MODULE_START = "$(PRODUCT_NAME)_kern_start";
@@ -544,6 +555,7 @@
 				OTHER_LDFLAGS = "-static";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ChefKissInc.NootedBlue;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = YES;
 				STRIP_STYLE = "non-global";
 				WRAPPER_EXTENSION = kext;
 			};
@@ -616,6 +628,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = "$(MODULE_VERSION)";
+				DEAD_CODE_STRIPPING = NO;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				GCC_ENABLE_FLOATING_POINT_LIBRARY_CALLS = NO;
 				GCC_ENABLE_KERNEL_DEVELOPMENT = NO;
@@ -658,6 +671,7 @@
 				OTHER_LDFLAGS = "-static";
 				PRODUCT_BUNDLE_IDENTIFIER = com.ChefKissInc.NootedBlue;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = YES;
 				WRAPPER_EXTENSION = kext;
 			};
 			name = Sanitize;
