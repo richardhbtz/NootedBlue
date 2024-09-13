@@ -824,7 +824,7 @@ private:
 	mach_vm_address_t orgIgBufferWithOptions {};
 	mach_vm_address_t orgIgBufferGetGpuVirtualAddress {};
 	
-	mach_vm_address_t GuC {};
+	mach_vm_address_t _gSysctlVariables {};
 	
 	uint32_t freq_max {0};
 	uint8_t *gKmGen9GuCBinary {nullptr};
@@ -836,9 +836,13 @@ private:
 	
 	bool performingFirmwareLoad {false};
 	
+	static int handleLinkIntegrityCheck();
+	
 	static void wrapSystemWillSleep(void *that);
 	static void wrapSystemDidWake(void *that);
 	
+
+	static void setPanelPowerState(void *that,bool param_1);
 	
 	static bool  getGPUInfo(void *that);
 	mach_vm_address_t ogetGPUInfo {};
@@ -921,6 +925,9 @@ private:
 	
 	static int 	probeBootPipe(void *that,bool *param_1,uint32_t *param_2);
 	mach_vm_address_t oprobeBootPipe {};
+	
+	static int LightUpEDP(void *that,void *param_1, void *param_2,void *param_3);
+	mach_vm_address_t oLightUpEDP {};
 	
 public:
 

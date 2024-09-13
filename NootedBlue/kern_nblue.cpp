@@ -14,6 +14,7 @@ static const char *pathAGDP = "/System/Library/Extensions/AppleGraphicsControl.k
 							  "AppleGraphicsDevicePolicy.kext/Contents/MacOS/AppleGraphicsDevicePolicy";
 static const char *pathBacklight = "/System/Library/Extensions/AppleBacklight.kext/Contents/MacOS/AppleBacklight";
 static const char *pathMCCSControl = "/System/Library/Extensions/AppleMCCSControl.kext/Contents/MacOS/AppleMCCSControl";
+static const char *pathIOGraphics= "/System/Library/Extensions/IOGraphicsFamily.kext/IOGraphicsFamily";
 
 static KernelPatcher::KextInfo kextAGDP {"com.apple.driver.AppleGraphicsDevicePolicy", &pathAGDP, 1, {true}, {},
 	KernelPatcher::KextInfo::Unloaded};
@@ -21,7 +22,8 @@ static KernelPatcher::KextInfo kextBacklight {"com.apple.driver.AppleBacklight",
 	KernelPatcher::KextInfo::Unloaded};
 static KernelPatcher::KextInfo kextMCCSControl {"com.apple.driver.AppleMCCSControl", &pathMCCSControl, 1, {true}, {},
 	KernelPatcher::KextInfo::Unloaded};
-
+static KernelPatcher::KextInfo kextIOGraphics { "com.apple.iokit.IOGraphicsFamily", &pathIOGraphics, 1, {true}, {},
+	KernelPatcher::KextInfo::Unloaded };
 
 NBlue *NBlue::callback = nullptr;
 
@@ -36,6 +38,7 @@ void NBlue::init() {
 	lilu.onKextLoadForce(&kextAGDP);
 	lilu.onKextLoadForce(&kextBacklight);
 	lilu.onKextLoadForce(&kextMCCSControl);
+	lilu.onKextLoadForce(&kextIOGraphics);
 	
 	gen11.init();
 	agfxhda.init();
@@ -69,11 +72,11 @@ void NBlue::processPatcher(KernelPatcher &patcher) {
 		
 
         static uint8_t builtin[] = {0x00};
-		static uint8_t builtin2[] = {0x02, 0x00, 0x5c, 0x8A};
-		static uint8_t builtin3[] = {0x5c, 0x8A,0x00,0x00};
+		//static uint8_t builtin2[] = {0x02, 0x00, 0x5c, 0x8A};
+		//static uint8_t builtin3[] = {0x5c, 0x8A,0x00,0x00};
 		
-		//static uint8_t builtin2[] = {0x00, 0x00, 0x49, 0x9A};
-		//static uint8_t builtin3[] = {0x49, 0x9A,0x00,0x00};
+		static uint8_t builtin2[] = {0x00, 0x00, 0x49, 0x9A};
+		static uint8_t builtin3[] = {0x49, 0x9A,0x00,0x00};
 
 		WIOKit::renameDevice(this->iGPU, "IGPU");
 		WIOKit::awaitPublishing(this->iGPU);
@@ -242,8 +245,8 @@ void NBlue::processPatcher(KernelPatcher &patcher) {
 		//to reduce sampler power.
 		//writeReg32(GEN10_DFR_RATIO_EN_AND_CHICKEN ,DFR_DISABLE );
 #endif
-		//KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead16, configRead16, &orgConfigRead16);
-		//KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead32, configRead32, &orgConfigRead32);
+		KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead16, configRead16, &orgConfigRead16);
+		KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead32, configRead32, &orgConfigRead32);
 
         DeviceInfo::deleter(devInfo);
 		
@@ -265,7 +268,17 @@ void NBlue::setRMMIOIfNecessary() {
 }
 
 bool NBlue::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t address, size_t size) {
-	if (kextAGDP.loadIndex == index) {
+	if (kextIOGraphics.loadIndex == index) {
+		//const LookupPatchPlus patch {&kextAGDP, kAGDPBoardIDKeyOriginal, kAGDPBoardIDKeyPatched, 1};
+		//SYSLOG_COND(!patch.apply(patcher, address, size), "NBlue", "Failed to apply AGDP board-id patch");
+		/*
+		KernelPatcher::RouteRequest requests[] = {
+				{"__ZN13IOFramebuffer25extValidateDetailedTimingEP8OSObjectPvP25IOExternalMethodArguments", wrapValidateDetailedTiming},
+			};
+			patcher.routeMultiple(index, requests, address, size);
+			patcher.clearError();*/
+		
+	}  else if (kextAGDP.loadIndex == index) {
 		const LookupPatchPlus patch {&kextAGDP, kAGDPBoardIDKeyOriginal, kAGDPBoardIDKeyPatched, 1};
 		SYSLOG_COND(!patch.apply(patcher, address, size), "NBlue", "Failed to apply AGDP board-id patch");
 

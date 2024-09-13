@@ -41,12 +41,16 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 		
 		SolveRequestPlus solveRequests[] = {
 			
-			{"__ZN24AppleIntelBaseController14disableCDClockEv", this->orgDisableCDClock},
-			{"__ZN24AppleIntelBaseController19setCDClockFrequencyEy", this->orgSetCDClockFrequency},
+			//{"__ZN24AppleIntelBaseController14disableCDClockEv", this->orgDisableCDClock},
+			//{"__ZN24AppleIntelBaseController19setCDClockFrequencyEy", this->orgSetCDClockFrequency},
+			{"_CSR_PATCH_AX", this->_CSR_PATCH_AX},
+			{"_CSR_PATCH_B0plus", this->_CSR_PATCH_B0plus},
 			
 		};
 		SYSLOG_COND(!SolveRequestPlus::solveAll(patcher, index, solveRequests, address, size), "nblue",	"Failed to resolve symbols");
 		
+		//this->_CSR_PATCH_AX=tgl_dmc_ver2_12_bin;
+		//this->_CSR_PATCH_B0plus=tgl_dmc_ver2_12_bin;
 		
 		RouteRequestPlus requests[] = {
 			
@@ -71,13 +75,15 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.11",releaseDoorbell},
 			{"__ZN19AppleIntelPowerWell21hwSetPowerWellStatePGEbj.cold.12",releaseDoorbell},
 			{"__ZN19AppleIntelPowerWell22hwSetPowerWellStateAuxEbj.cold.1",releaseDoorbell},
-			{"__ZN24AppleIntelBaseController19setCDClockFrequencyEy.cold.1",releaseDoorbell},
+			
+			/*{"__ZN24AppleIntelBaseController19setCDClockFrequencyEy.cold.1",releaseDoorbell},
 			{"__ZN17AppleIntelPortHAL14enableComboPhyEv.cold.1",releaseDoorbell},
 			{"__ZN19AppleIntelPowerWell19enableDisplayEngineEv.cold.1",releaseDoorbell},
-			{"__ZN19AppleIntelPowerWell19enableDisplayEngineEv.cold.2",releaseDoorbell},
+			{"__ZN19AppleIntelPowerWell19enableDisplayEngineEv.cold.2",releaseDoorbell},*/
 			
 			
-			
+			//{"__ZN31AppleIntelFramebufferController11initCDClockEv.cold.1",releaseDoorbell},
+			//{"__ZN31AppleIntelFramebufferController19setCDClockFrequencyEy.cold.1",releaseDoorbell},
 			
 			//{"__ZN26AppleIntelDSBAccessManager15WriteRegister32Emj",radWriteRegister32,this->oradWriteRegister32},
 			//{"__ZN26AppleIntelDSBAccessManager24WriteRegister32ImmediateEmj",radWriteRegister32f,this->oradWriteRegister32f},
@@ -86,10 +92,36 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			
 			//{"__ZN17AppleIntelPortHAL11getHPDStateEv",getHPDState},
 			
-			{"__ZN31AppleIntelRegisterAccessManager14ReadRegister32Em",raReadRegister32,this->oraReadRegister32},
-			/*{"__ZN31AppleIntelRegisterAccessManager14ReadRegister32EPVvm",raReadRegister32b},
+			//{"__ZN15AppleIntelPlane22configureColorPipeLineEP19FlipTransactionArgsb",releaseDoorbell},
+			//{"__ZN31AppleIntelFramebufferController14disableCDClockEv",releaseDoorbell},
 			
-			{"__ZN31AppleIntelRegisterAccessManager14ReadRegister64Em",raReadRegister64,this->oraReadRegister64},
+			//{"__ZN24AppleIntelBaseController11hwEnableVRREP21AppleIntelFramebufferPK29IODetailedTimingInformationV2",releaseDoorbell},
+			//{"__ZN24AppleIntelBaseController13hwEnableAudioEP21AppleIntelFramebufferP21AppleIntelDisplayPath",releaseDoorbell},
+			//{"__ZN21AppleIntelFramebuffer9armUpdateEv",releaseDoorbell},
+			//{"__ZN24AppleIntelBaseController19isLPVPSupportedPipeEj",handleLinkIntegrityCheck},
+			
+			
+			/*{"__ZN21AppleIntelDisplayPath25configurePipePostCSCGammaEP19FlipTransactionArgs10IGColorCtl",releaseDoorbell},
+			{"__ZN21AppleIntelDisplayPath19FlushTriggerPacketsEv",releaseDoorbell},
+			{"__ZN15AppleIntelPlane11enablePlaneEb",releaseDoorbell},
+			{"__ZN15AppleIntelPlane22setupPlanarSurfaceDBUFEv",releaseDoorbell},
+			{"__ZN15AppleIntelPlane21enablePlaneWatermarksEb",releaseDoorbell},
+			{"__ZN15AppleIntelPlane20setupPlaneWatermarksEP21AppleIntelDisplayPath",releaseDoorbell},
+			{"__ZN15AppleIntelPlane22enableCursorWatermarksEb",releaseDoorbell},
+			{"__ZN15AppleIntelPlane21setupCursorWatermarksEP21AppleIntelDisplayPath",releaseDoorbell},
+			{"__ZN15AppleIntelPlane15setupCursorDBUFEv",releaseDoorbell},
+			{"__ZN16AppleIntelScaler13disableScalerEb",releaseDoorbell},
+			{"__ZN16AppleIntelScaler17programPipeScalerEP21AppleIntelDisplayPath",releaseDoorbell},
+			{"__ZN21AppleIntelFramebuffer18depthFromAttributeEj",wdepthFromAttribute},
+			{"__ZN15AppleIntelPlane19updateRegisterCacheEv",releaseDoorbell},
+			{"__ZN16AppleIntelScaler19updateRegisterCacheEv",releaseDoorbell},*/
+			
+			//{"__ZN31AppleIntelRegisterAccessManager14ReadRegister32Em",raReadRegister32,this->oraReadRegister32},
+			
+			
+			//{"__ZN31AppleIntelRegisterAccessManager14ReadRegister32EPVvm",raReadRegister32b},
+			
+			/*{"__ZN31AppleIntelRegisterAccessManager14ReadRegister64Em",raReadRegister64,this->oraReadRegister64},
 			{"__ZN31AppleIntelRegisterAccessManager14ReadRegister64EPVvm",raReadRegister64b},
 			
 			{"__ZN31AppleIntelRegisterAccessManager15WriteRegister32Emj",raWriteRegister32,this->oraWriteRegister32},
@@ -98,7 +130,7 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			{"__ZN31AppleIntelRegisterAccessManager15WriteRegister64Emy",raWriteRegister64,this->oraWriteRegister64},
 			{"__ZN31AppleIntelRegisterAccessManager15WriteRegister64EPVvmy",raWriteRegister64b},
 			
-			
+			 
 			{"__ZN31AppleIntelRegisterAccessManager19FastWriteRegister32Emj",raWriteRegister32f,this->oraWriteRegister32f},
 			*/
 			//{"__ZN15AppleIntelPlane10updateDBUFEjjb",updateDBUF},
@@ -108,20 +140,15 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			
 			//{"__ZN24AppleIntelBaseController18SafeReadRegister32Em",wrapReadRegister32,	this->owrapReadRegister32},
 			
-			{"__ZN24AppleIntelBaseController21probeCDClockFrequencyEv",wrapProbeCDClockFrequency,	this->orgProbeCDClockFrequency},
+			//{"__ZN24AppleIntelBaseController21probeCDClockFrequencyEv",wrapProbeCDClockFrequency,	this->orgProbeCDClockFrequency},
 			
 			//{"__ZN20IntelFBClientControl11doAttributeEjPmmS0_S0_P25IOExternalMethodArguments",wrapFBClientDoAttribute,	this->orgFBClientDoAttribute},
 
 			
-			{"__ZN24AppleIntelBaseController13probeBootPipeEPbPN17AppleIntelPortHAL3DDIE",probeBootPipe,	this->oprobeBootPipe},
-			
+			//{"__ZN24AppleIntelBaseController13probeBootPipeEPbPN17AppleIntelPortHAL3DDIE",probeBootPipe,	this->oprobeBootPipe},
 			//{"__ZN19AppleIntelPowerWell4initEP24AppleIntelBaseController",releaseDoorbell},
 			//{"__ZN24AppleIntelBaseController5startEP9IOService",tgstart,this->otgstart},
-			//{"__ZN21AppleIntelFramebuffer18depthFromAttributeEj",wdepthFromAttribute},
 			
-			
-			//{"__ZN15AppleIntelPlane19updateRegisterCacheEv",releaseDoorbell},
-			//{"__ZN16AppleIntelScaler19updateRegisterCacheEv",releaseDoorbell},
 			
 			
 		};
@@ -129,11 +156,19 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 		
 		//powerwell
 		static const uint8_t f1[]= {0x49, 0x83, 0xfe, 0x09, 0x0f, 0x85, 0xc8, 0xfe, 0xff, 0xff};
-		static const uint8_t r1[]= {0x49, 0x83, 0xfe, 0x04, 0x0f, 0x85, 0xc8, 0xfe, 0xff, 0xff};
+		static const uint8_t r1[]= {0x49, 0x83, 0xfe, 0x03, 0x0f, 0x85, 0xc8, 0xfe, 0xff, 0xff};
 		
 		//osinfo
 		static const uint8_t f2[]= {0xc7, 0x05, 0x07, 0x81, 0x10, 0x00, 0x01, 0x03, 0x09, 0x03, 0xb8, 0x00, 0x00, 0x00, 0x04};
-		static const uint8_t r2[]= {0xc7, 0x05, 0x07, 0x81, 0x10, 0x00, 0x01, 0x03, 0x04, 0x03, 0xb8, 0x00, 0x00, 0x00, 0x04};
+		static const uint8_t r2[]= {0xc7, 0x05, 0x07, 0x81, 0x10, 0x00, 0x01, 0x03, 0x03, 0x03, 0xb8, 0x00, 0x00, 0x00, 0x04};
+		
+		//powerwell
+		static const uint8_t f1p[]= {0x49, 0x83, 0xfe, 0x09, 0x0f, 0x85, 0x54, 0xff, 0xff, 0xff};
+		static const uint8_t r1p[]= {0x49, 0x83, 0xfe, 0x03, 0x0f, 0x85, 0x54, 0xff, 0xff, 0xff};
+		
+		//osinfo
+		static const uint8_t f2p[]= {0xc7, 0x05, 0x57, 0xe5, 0x0b, 0x00, 0x01, 0x03, 0x09, 0x03, 0xb8, 0x00, 0x00, 0x00, 0x04};
+		static const uint8_t r2p[]= {0xc7, 0x05, 0x57, 0xe5, 0x0b, 0x00, 0x01, 0x03, 0x03, 0x03, 0xb8, 0x00, 0x00, 0x00, 0x04};
 		
 		//conn
 		static const uint8_t f3[]= {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x18, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x0b, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00};
@@ -164,20 +199,71 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 		static const uint8_t f6[]= {0xe8, 0x8c, 0xac, 0x04, 0x00, 0xbf, 0x08, 0x00, 0x00, 0x00, 0xbe, 0x06, 0x00, 0x00, 0x00, 0xe8, 0x8b, 0xf5, 0x02, 0x00, 0x84, 0xc0, 0x74, 0x39};
 		static const uint8_t r6[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xeb, 0x39};
 		
+		static const uint8_t f6p[]= {0xe8, 0x5e, 0xe6, 0x02, 0x00, 0x49, 0x8b, 0x45, 0x00, 0x48, 0x83, 0xb8, 0xd0, 0x00, 0x00, 0x00, 0x00, 0x74, 0x1c};
+		static const uint8_t r6p[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xeb, 0x1c};
+		
+		
 		//ReadRegister64
 		static const uint8_t f7[]= {0x83, 0xc0, 0xfc, 0x48, 0x39, 0xf0, 0x76, 0x11, 0x48, 0x8b, 0x47, 0x50, 0x48, 0xff, 0x05, 0xca, 0xf5, 0x0c, 0x00};
 		static const uint8_t r7[]= {0x83, 0xc0, 0xf8, 0x48, 0x39, 0xf0, 0x76, 0x11, 0x48, 0x8b, 0x47, 0x50, 0x48, 0xff, 0x05, 0xca, 0xf5, 0x0c, 0x00};
+		
+		static const uint8_t f7p[]= {0x83, 0xc0, 0xfc, 0x48, 0x39, 0xf0, 0x76, 0x11, 0x48, 0x8b, 0x47, 0x50, 0x48, 0xff, 0x05, 0x84, 0x40, 0x08, 0x00};
+		static const uint8_t r7p[]= {0x83, 0xc0, 0xf8, 0x48, 0x39, 0xf0, 0x76, 0x11, 0x48, 0x8b, 0x47, 0x50, 0x48, 0xff, 0x05, 0x84, 0x40, 0x08, 0x00};
 
 		//wellini
 		static const uint8_t f8[]= {0xff, 0x91, 0x90, 0x01, 0x00, 0x00, 0x83, 0xf8, 0x02, 0x0f, 0x84, 0xec, 0x00, 0x00, 0x00};
 		static const uint8_t r8[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 		
+		static const uint8_t f8p[]= {0xff, 0x91, 0x78, 0x01, 0x00, 0x00, 0x83, 0xf8, 0x02, 0x74, 0x64};
+		static const uint8_t r8p[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+		
+		static const uint8_t f8bp[]= {0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x01, 0x00, 0x00, 0x00, 0xe8, 0xe1, 0x09, 0xfc, 0xff, 0x48, 0x85, 0xc0, 0x74, 0x13, 0x48, 0xff, 0x05, 0xcb, 0x70, 0x08, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x02, 0x00, 0x00, 0x00, 0xe8, 0xbf, 0x09, 0xfc, 0xff, 0x48, 0x85, 0xc0, 0x74, 0x13, 0x48, 0xff, 0x05, 0xb1, 0x70, 0x08, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00};
+		static const uint8_t r8bp[]= {0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x01, 0x00, 0x00, 0x00, 0xe8, 0xe1, 0x09, 0xfc, 0xff, 0x48, 0x85, 0xc0, 0x74, 0x13, 0x48, 0xff, 0x05, 0xcb, 0x70, 0x08, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xbf, 0x02, 0x00, 0x00, 0x00, 0xe8, 0xbf, 0x09, 0xfc, 0xff, 0x48, 0x85, 0xc0, 0x74, 0x13, 0x48, 0xff, 0x05, 0xb1, 0x70, 0x08, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+		
 		//pipe
 		static const uint8_t f9[]= {0xbe, 0x00, 0x04, 0x06, 0x00};
 		static const uint8_t r9[]= {0xbe, 0x00, 0xf4, 0x06, 0x00};
-		static const uint8_t f9b[]= {0x74, 0x13, 0x48, 0xff, 0x05, 0x61, 0x36, 0x0d, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x01, 0x00, 0x00, 0x00, 0xe8, 0xf5, 0xd6, 0xf9, 0xff, 0x48, 0x85, 0xc0, 0x74, 0x13, 0x48, 0xff, 0x05, 0x47, 0x36, 0x0d, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x02, 0x00, 0x00, 0x00, 0xe8, 0xd3, 0xd6, 0xf9, 0xff, 0x48, 0x85, 0xc0, 0x74, 0x13};
-		static const uint8_t r9b[]= {0xeb, 0x13, 0x48, 0xff, 0x05, 0x61, 0x36, 0x0d, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x01, 0x00, 0x00, 0x00, 0xe8, 0xf5, 0xd6, 0xf9, 0xff, 0x48, 0x85, 0xc0, 0xeb, 0x13, 0x48, 0xff, 0x05, 0x47, 0x36, 0x0d, 0x00, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x60, 0x01, 0x00, 0x00, 0xbf, 0x02, 0x00, 0x00, 0x00, 0xe8, 0xd3, 0xd6, 0xf9, 0xff, 0x48, 0x85, 0xc0, 0xeb, 0x13};
 		
+		//hwreg
+		static const uint8_t f10[]= {0x74, 0x5b, 0x48, 0xff, 0x05, 0x78, 0x2b, 0x0e, 0x00, 0xbf, 0x04, 0x00, 0x00, 0x00, 0xbe, 0x06, 0x00, 0x00, 0x00};
+		static const uint8_t r10[]= {0xeb, 0x5b, 0x48, 0xff, 0x05, 0x78, 0x2b, 0x0e, 0x00, 0xbf, 0x04, 0x00, 0x00, 0x00, 0xbe, 0x06, 0x00, 0x00, 0x00};
+		
+		//hpdstate p+int
+		static const uint8_t f11[]= {0xbe, 0x70, 0x44, 0x04, 0x00};
+		static const uint8_t r11[]= {0xbe, 0xa0, 0x38, 0x16, 0x00};
+		
+		//portmode
+		static const uint8_t f12[]= {0xff, 0x90, 0x90, 0x01, 0x00, 0x00, 0x49, 0x8b, 0x0e, 0x4c, 0x89, 0xf7, 0x89, 0xc6, 0xff, 0x91, 0x38, 0x01, 0x00, 0x00};
+		static const uint8_t r12[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+		
+		static const uint8_t f12p[]= {0xff, 0x90, 0x78, 0x01, 0x00, 0x00, 0x49, 0x8b, 0x0e, 0x4c, 0x89, 0xf7, 0x89, 0xc6, 0xff, 0x91, 0x38, 0x01, 0x00, 0x00};
+		static const uint8_t r12p[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+		
+		//pipe+portmode
+		static const uint8_t f13[]= {0xe8, 0x3b, 0xde, 0xf9, 0xff, 0x48, 0x8b, 0x08, 0x48, 0x89, 0xc7, 0xff, 0x91, 0x90, 0x01, 0x00, 0x00, 0x83, 0xf8, 0x02, 0x0f, 0x84, 0xec, 0x00, 0x00, 0x00};
+		static const uint8_t r13[]= {0xe8, 0x3b, 0xde, 0xf9, 0xff, 0x48, 0x89, 0xc3, 0x48, 0x89, 0xc7, 0x31, 0xf6, 0xe8, 0x66, 0xe6, 0xf9, 0xff, 0x90, 0x90, 0x48, 0xe9, 0xec, 0x00, 0x00, 0x00};
+		static const uint8_t f13b[]= {0xff, 0x90, 0x90, 0x01, 0x00, 0x00, 0x49, 0x8b, 0x0e, 0x4c, 0x89, 0xf7, 0x89, 0xc6, 0xff, 0x91, 0x38, 0x01, 0x00, 0x00};
+		static const uint8_t r13b[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x49, 0x8b, 0x0e, 0x4c, 0x89, 0xf7, 0x31, 0xf6, 0xff, 0x91, 0x38, 0x01, 0x00, 0x00};
+		
+		//initGammaPara
+		static const uint8_t f14[]= {0x0f, 0x84, 0x90, 0x08, 0x00, 0x00, 0x48, 0xff, 0x05, 0x89, 0xda, 0x0f, 0x00, 0x4c, 0x8b, 0x0d, 0x6a, 0x9e, 0x0f, 0x00, 0x4d, 0x8d, 0x61, 0x01};
+		static const uint8_t r14[]= {0x48, 0xe9, 0x90, 0x08, 0x00, 0x00, 0x48, 0xff, 0x05, 0x89, 0xda, 0x0f, 0x00, 0x4c, 0x8b, 0x0d, 0x6a, 0x9e, 0x0f, 0x00, 0x4d, 0x8d, 0x61, 0x01};
+		//hwCRTCToIODetailedTimingInformation
+		static const uint8_t f14b[]= {0x48, 0xf7, 0xf1, 0x48, 0x89, 0xc1, 0x49, 0x89, 0x47, 0x28, 0x45, 0x84, 0xed, 0x74, 0x2b};
+		static const uint8_t r14b[]= {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+		//flip
+		static const uint8_t f14c[]= {0x0f, 0x84, 0x59, 0x01, 0x00, 0x00, 0x48, 0xff, 0x05, 0x6b, 0xdc, 0x0f, 0x00, 0x48, 0x8b, 0xbb, 0x40, 0x4a, 0x00, 0x00, 0x48, 0xff, 0x05, 0x85, 0xa0, 0x0f, 0x00, 0x48, 0xff, 0x05, 0x86, 0xe0, 0x0f, 0x00};
+		static const uint8_t r14c[]= {0x48, 0xe9, 0x59, 0x01, 0x00, 0x00, 0x48, 0xff, 0x05, 0x6b, 0xdc, 0x0f, 0x00, 0x48, 0x8b, 0xbb, 0x40, 0x4a, 0x00, 0x00, 0x48, 0xff, 0x05, 0x85, 0xa0, 0x0f, 0x00, 0x48, 0xff, 0x05, 0x86, 0xe0, 0x0f, 0x00};
+		
+		//alwayson
+		static const uint8_t f15[]= {0x74, 0x0d, 0x48, 0xff, 0x05, 0x10, 0x4a, 0x0d, 0x00, 0x41, 0xc6, 0x44, 0x24, 0x18, 0x01, 0x48, 0xff, 0x05, 0x9b, 0x50, 0x0d, 0x00};
+		static const uint8_t r15[]= {0x90, 0x90, 0x48, 0xff, 0x05, 0x10, 0x4a, 0x0d, 0x00, 0x41, 0xc6, 0x44, 0x24, 0x18, 0x01, 0x48, 0xff, 0x05, 0x9b, 0x50, 0x0d, 0x00};
+		
+		//dsb
+		static const uint8_t f16[]= {0x48, 0xff, 0x05, 0xbb, 0x6c, 0x0f, 0x00, 0x41, 0x83, 0xbd, 0xc8, 0x0d, 0x00, 0x00, 0x00, 0x0f, 0x84, 0x0c, 0x01, 0x00, 0x00};
+		static const uint8_t r16[]= {0x48, 0xff, 0x05, 0xbb, 0x6c, 0x0f, 0x00, 0x41, 0x83, 0xbd, 0xc8, 0x0d, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+		static const uint8_t f16b[]= {0x0f, 0x84, 0x86, 0x01, 0x00, 0x00, 0x48, 0xff, 0x05, 0xf4, 0x6b, 0x0f, 0x00, 0x41, 0x83, 0xbd, 0xcc, 0x0d, 0x00, 0x00, 0x00, 0x0f, 0x84, 0x71, 0x01, 0x00, 0x00};
+		static const uint8_t r16b[]= {0x48, 0xe9, 0x86, 0x01, 0x00, 0x00, 0x48, 0xff, 0x05, 0xf4, 0x6b, 0x0f, 0x00, 0x41, 0x83, 0xbd, 0xcc, 0x0d, 0x00, 0x00, 0x00, 0x0f, 0x84, 0x71, 0x01, 0x00, 0x00};
 		
 		
 
@@ -187,23 +273,45 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 		LookupPatchPlus const patches[] = {
 			//{&kextG11FBT, f1, r1, arrsize(f1),	1},
 			//{&kextG11FBT, f2, r2, arrsize(f2),	1},
-			//{&kextG11FBT, f3, r3, arrsize(f3),	1},
-			{&kextG11FBT, f4, r4, arrsize(f4),	1},
 			
-			/*{&kextG11FBT, f5, r5, arrsize(f5),	1},
+			//{&kextG11FBT, f1p, r1p, arrsize(f1p),	1},
+			//{&kextG11FBT, f2p, r2p, arrsize(f2p),	1},
+			
+			//{&kextG11FBT, f3, r3, arrsize(f3),	1},
+			/*{&kextG11FBT, f4, r4, arrsize(f4),	1},
+			
+			{&kextG11FBT, f5, r5, arrsize(f5),	1},
 			{&kextG11FBT, f5a, r5a, arrsize(f5a),	1},
 			{&kextG11FBT, f5b, r5b, arrsize(f5b),	1},
 			{&kextG11FBT, f5c, r5c, arrsize(f5c),	1},
 			{&kextG11FBT, f5d, r5d, arrsize(f5d),	1},*/
 			
-			{&kextG11FBT, f6, r6, arrsize(f6),	1},
+			//{&kextG11FBT, f6, r6, arrsize(f6),	1},
+			//{&kextG11FBT, f6p, r6p, arrsize(f6p),	1},
+			//{&kextG11FBT, f7p, r7p, arrsize(f7p),	1},
 			{&kextG11FBT, f7, r7, arrsize(f7),	1},
-			{&kextG11FBT, f8, r8, arrsize(f8),	1},
+			//{&kextG11FBT, f8, r8, arrsize(f8),	1},
+			//{&kextG11FBT, f8p, r8p, arrsize(f8p),	1},
+			//{&kextG11FBT, f8bp, r8bp, arrsize(f8bp),	1},
 			
-			{&kextG11FBT, f9, r9, arrsize(f9),	6},
-			{&kextG11FBT, f9b, r9b, arrsize(f9b),	1},
+			//{&kextG11FBT, f9, r9, arrsize(f9),	6},
+			//{&kextG11FBT, f9, r9, arrsize(f9),	5},//prod
 			
+			//{&kextG11FBT, f10, r10, arrsize(f10),	1},
+			//{&kextG11FBT, f11, r11, arrsize(f11),	1},
+			//{&kextG11FBT, f12, r12, arrsize(f12),	1},
+			//{&kextG11FBT, f12p, r12p, arrsize(f12p),	1},
 			
+			//{&kextG11FBT, f13, r13, arrsize(f13),	1},
+			//{&kextG11FBT, f13b, r13b, arrsize(f13b),	1},
+			//{&kextG11FBT, f14, r14, arrsize(f14),	1},
+			//{&kextG11FBT, f14b, r14b, arrsize(f14b),	1},
+			//{&kextG11FBT, f14c, r14c, arrsize(f14c),	1},
+			
+			//{&kextG11FBT, f15, r15, arrsize(f15),	1},
+			
+			//{&kextG11FBT, f16, r16, arrsize(f16),	1},
+			//{&kextG11FBT, f16b, r16b, arrsize(f16b),1},
 			
 		};
 		
@@ -226,7 +334,7 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			//{"_gPlatformInformationList", this->gPlatformInformationList},
 			//{"__ZN5IGGuC16enableInterruptsEv", this->oenableInterrupts},
 			
-			//{"__ZN13IGHardwareGuC10gMetaClassE", this->GuC},
+			//{"_gSysctlVariables", this->_gSysctlVariables},
 			
 		};
 		SYSLOG_COND(!SolveRequestPlus::solveAll(patcher, index, solveRequests, address, size), "nblue",	"Failed to resolve symbols");
@@ -238,6 +346,9 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			//{"__ZN31AppleIntelFramebufferController5probeEP9IOServicePi",wprobe,	this->owprobe},
 			//{"__ZN17AppleIntelPortHAL13probePortModeEv",probePortMode,	this->oprobePortMode},
 			
+
+			{"__ZN15AppleIntelHDCP124handleLinkIntegrityCheckEv",handleLinkIntegrityCheck},
+			{"__ZN15AppleIntelHDCP224handleLinkIntegrityCheckEv",handleLinkIntegrityCheck},
 			
 			//{"__ZN31AppleIntelFramebufferController15hwSetPanelPowerEj",hwSetPanelPower},
 			//{"__ZN31AppleIntelFramebufferController21hwSetPanelPowerConfigEj",hwSetPanelPowerConfig,	this->ohwSetPanelPowerConfig},
@@ -247,20 +358,30 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			{"__ZN31AppleIntelFramebufferController14ReadRegister32Em",wrapReadRegister32,	this->owrapReadRegister32},
 			{"__ZN31AppleIntelFramebufferController15WriteRegister32Emj",wrapWriteRegister32,	this->owrapWriteRegister32},
 			
-			{"__ZN21AppleIntelFramebuffer18prepareToEnterWakeEv",releaseDoorbell},
-			//{"__ZN21AppleIntelFramebuffer17prepareToExitWakeEv",releaseDoorbell},
 			
-			//{"__ZN21AppleIntelFramebuffer18prepareToExitSleepEv",releaseDoorbell},
-			//{"__ZN21AppleIntelFramebuffer19prepareToEnterSleepEv",releaseDoorbell},
+			
+			{"__ZN14AppleIntelPort16fastLinkTrainingEv.cold.1",releaseDoorbell},
+			{"__ZN31AppleIntelFramebufferController12enableClocksEP21AppleIntelFramebufferP21AppleIntelDisplayPath.cold.1",releaseDoorbell},
+			{"__ZN31AppleIntelFramebufferController20calculatePllDivisorsEjP21AppleIntelDisplayPath.cold.1",releaseDoorbell},
+			
+			
+			
+			{"__ZN14AppleIntelPort16fastLinkTrainingEv",handleLinkIntegrityCheck},
+			
+			{"__ZN21AppleIntelFramebuffer18prepareToEnterWakeEv",releaseDoorbell},
+			{"__ZN21AppleIntelFramebuffer17prepareToExitWakeEv",releaseDoorbell},
+			
+			{"__ZN21AppleIntelFramebuffer18prepareToExitSleepEv",releaseDoorbell},
+			{"__ZN21AppleIntelFramebuffer19prepareToEnterSleepEv",releaseDoorbell},
 			//{"__ZN21AppleIntelFramebuffer19prepareToEnterSleepEv",prepareToEnterSleep,	this->oprepareToEnterSleep},
 			
-			
+
 			//{"__ZN21AppleIntelFramebuffer17connectionChangedEv",connectionChanged,	this->oconnectionChanged},
 			//{"__ZN21AppleIntelFramebuffer14disableDisplayEb",disableDisplay,	this->odisableDisplay},
 			
-			//{"__ZN21AppleIntelFramebuffer18setPanelPowerStateEb",setPanelPowerState,	this->osetPanelPowerState},
+			//{"__ZN21AppleIntelFramebuffer18setPanelPowerStateEb",setPanelPowerState},
 			
-			//{"__ZN31AppleIntelFramebufferController10LightUpEDPEP21AppleIntelFramebufferP21AppleIntelDisplayPathPK29IODetailedTimingInformationV2",LightUpEDP,	this->oLightUpEDP},
+			{"__ZN31AppleIntelFramebufferController10LightUpEDPEP21AppleIntelFramebufferP21AppleIntelDisplayPathPK29IODetailedTimingInformationV2",LightUpEDP,	this->oLightUpEDP},
 			
 
 			//{"__ZN14AppleIntelPort14getPortByIndexEj",getPortByIndex,	this->ogetPortByIndex},
@@ -268,7 +389,7 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			
 			//{"__ZN31AppleIntelFramebufferController5startEP9IOService",start,	this->ostart},
 			
-			//{"__ZN20IntelFBClientControl11doAttributeEjPmmS0_S0_P25IOExternalMethodArguments",wrapFBClientDoAttribute,	this->orgFBClientDoAttribute},
+			{"__ZN20IntelFBClientControl11doAttributeEjPmmS0_S0_P25IOExternalMethodArguments",wrapFBClientDoAttribute,	this->orgFBClientDoAttribute},
 			
 			/*{"__ZN31AppleIntelFramebufferController16hwRegsNeedUpdateEP21AppleIntelFramebufferP21AppleIntelDisplayPathP10CRTCParamsPK29IODetailedTimingInformationV2PN16AppleIntelScaler12SCALERPARAMSE", wrapHwRegsNeedUpdate,this->owrapHwRegsNeedUpdate},*/
 				//{"__ZN21AppleIntelFramebuffer19validateDisplayModeEiPPKNS_15ModeDescriptionEPPK29IODetailedTimingInformationV2", fbdebugWrapValidateDisplayMode, this->ofbdebugWrapValidateDisplayMode},
@@ -315,12 +436,33 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 		static const uint8_t r10b[] = {0x90, 0x90, 0x48, 0xff, 0x05, 0xfa, 0x65, 0x0b, 0x00, 0x41, 0xc6, 0x85, 0xfa, 0x0b, 0x00, 0x00, 0x00, 0x48, 0xff, 0x05, 0x93, 0x69, 0x0b, 0x00, 0x48, 0x8d, 0x3d, 0x14, 0x66, 0xfb, 0xff};
 		
 		//Vendor info\n","AGDC
-		static const uint8_t f11[] = {0x41, 0xbd, 0xc2, 0x02, 0x00, 0xe0};
-		static const uint8_t r11[] = {0x41, 0xbd, 0xc2, 0x01, 0x00, 0xe0};
+		static const uint8_t f11[] = {0x4c, 0x89, 0xe9, 0x48, 0xff, 0x05, 0x3d, 0xc1, 0x06, 0x00, 0x41, 0xbd, 0xc2, 0x02, 0x00, 0xe0};
+		static const uint8_t r11[] = {0x4c, 0x89, 0xe9, 0x48, 0xff, 0x05, 0x3d, 0xc1, 0x06, 0x00, 0x41, 0xbd, 0xc2, 0x01, 0x00, 0xe0};
         
         //rev 7
         static const uint8_t f12[] = {0xe8, 0xfc, 0xf9, 0x56, 0xeb, 0x0f, 0xb6, 0xc0, 0x41, 0x89, 0x85, 0x9c, 0x0c, 0x00, 0x00};
         static const uint8_t r12[] = {0xb8, 0x07, 0x00, 0x00, 0x00, 0x0f, 0xb6, 0xc0, 0x41, 0x89, 0x85, 0x9c, 0x0c, 0x00, 0x00};
+		
+		//modeset
+		static const uint8_t f13[] = {0x74, 0x56, 0x48, 0xff, 0x05, 0x8a, 0x49, 0x0a, 0x00, 0x48, 0xff, 0x05, 0xbb, 0x01, 0x0a, 0x00, 0x45, 0x8b, 0x8e, 0xdc, 0x01, 0x00, 0x00};
+		static const uint8_t r13[] = {0x90, 0x90, 0x48, 0xff, 0x05, 0x8a, 0x49, 0x0a, 0x00, 0x48, 0xff, 0x05, 0xbb, 0x01, 0x0a, 0x00, 0x45, 0x8b, 0x8e, 0xdc, 0x01, 0x00, 0x00};
+		
+		static const uint8_t f13b[] = {0x74, 0x3d, 0x41, 0x80, 0xbd, 0xe1, 0x01, 0x00, 0x00, 0x00, 0x0f, 0x84, 0xea, 0x00, 0x00, 0x00, 0x48, 0xff, 0x05, 0xbe, 0x0c, 0x0d, 0x00, 0x48, 0xff, 0x05, 0xbf, 0x4a, 0x0d, 0x00};
+		static const uint8_t r13b[] = {0xeb, 0x3d, 0x41, 0x80, 0xbd, 0xe1, 0x01, 0x00, 0x00, 0x00, 0x0f, 0x84, 0xea, 0x00, 0x00, 0x00, 0x48, 0xff, 0x05, 0xbe, 0x0c, 0x0d, 0x00, 0x48, 0xff, 0x05, 0xbf, 0x4a, 0x0d, 0x00};
+		
+		static const uint8_t f13c[] = {0x74, 0x32, 0xbf, 0x05, 0x00, 0x00, 0x00, 0xe8, 0xe2, 0x6f, 0x54, 0xeb, 0xff, 0xcb, 0x75, 0xd1};
+		static const uint8_t r13c[] = {0xeb, 0x32, 0xbf, 0x05, 0x00, 0x00, 0x00, 0xe8, 0xe2, 0x6f, 0x54, 0xeb, 0xff, 0xcb, 0x75, 0xd1};
+		
+		static const uint8_t f13d[] = {0x74, 0x35, 0x49, 0x8b, 0x07, 0xf6, 0x80, 0x18, 0x0c, 0x00, 0x00, 0x80, 0x75, 0x35};
+		static const uint8_t r13d[] = {0xeb, 0x35, 0x49, 0x8b, 0x07, 0xf6, 0x80, 0x18, 0x0c, 0x00, 0x00, 0x80, 0x75, 0x35};
+		
+		static const uint8_t f13e[] = {0x4c, 0x89, 0xe7, 0x4c, 0x89, 0xfe, 0x4c, 0x89, 0xf2, 0xe8, 0x9e, 0xb9, 0xff, 0xff};
+		static const uint8_t r13e[] = {0x4c, 0x89, 0xe7, 0x4c, 0x89, 0xfe, 0x4c, 0x89, 0xf2, 0x90, 0x90, 0x90, 0x90, 0x90};
+		
+		static const uint8_t f13f[] = {0x74, 0x31, 0x48, 0xff, 0x05, 0xb7, 0x44, 0x0e, 0x00, 0x48, 0x8d, 0x05, 0x88, 0xc8, 0x14, 0x00, 0x48, 0x8b, 0x00};
+		static const uint8_t r13f[] = {0x90, 0x90, 0x48, 0xff, 0x05, 0xb7, 0x44, 0x0e, 0x00, 0x48, 0x8d, 0x05, 0x88, 0xc8, 0x14, 0x00, 0x48, 0x8b, 0x00};
+		
+
 		
 		
 		
@@ -362,7 +504,7 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			{&kextG11FB, f1b, r1b, arrsize(f1b),	1},
 
 			
-			//{&kextG11FB, f5, r5, arrsize(f5),	1},
+			{&kextG11FB, f5, r5, arrsize(f5),	1},
 			//{&kextG11FB, f6, r6, arrsize(f6),	1},
 			
 			{&kextG11FB, f8, r8, arrsize(f8),	1},
@@ -372,11 +514,17 @@ bool Gen11::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			{&kextG11FB, f10, r10, arrsize(f10),	1},
 			//{&kextG11FB, f10b, r10b, arrsize(f10b),	1},
 			
-			//{&kextG11FB, f11, r11, arrsize(f11),	1},
+			{&kextG11FB, f11, r11, arrsize(f11),	1},
             {&kextG11FB, f12, r12, arrsize(f12),    1},
 			
-			//{&kextG11FB, f13, r13, arrsize(f13),    1},
-			//{&kextG11FB, f15, r15, arrsize(f15),    1},
+			{&kextG11FB, f13, r13, arrsize(f13),	1},
+			{&kextG11FB, f13b, r13b, arrsize(f13b),	1},
+			{&kextG11FB, f13c, r13c, arrsize(f13c),	1},
+			{&kextG11FB, f13d, r13d, arrsize(f13d),	1},
+			{&kextG11FB, f13e, r13e, arrsize(f13e),	1},
+			{&kextG11FB, f13f, r13f, arrsize(f13f),	1},
+			
+
 			
 		};
 		
@@ -896,7 +1044,6 @@ UInt64 Gen11::wrapIgBufferGetGpuVirtualAddress(void *that) {
 
 
 uint32_t Gen11::wrapReadRegister32(void *controller, uint32_t address) {
-
 	uint32_t retVal = FunctionCast(wrapReadRegister32, callback->owrapReadRegister32)(controller,address);
 
 	return retVal;
@@ -960,8 +1107,8 @@ void Gen11::sanitizeCDClockFrequency(void *that) {
 	//auto referenceFrequency = callback->wrapReadRegister32(that, SKL_DSSM) & ICL_DSSM_CDCLK_PLL_REFCLK_MASK;
 	
 	
-	auto referenceFrequency = NBlue::callback-> readReg32( ICL_REG_DSSM) >> 29;
-	//auto referenceFrequency = callback->wrapReadRegister32(that, ICL_REG_DSSM) >> 29;
+	//auto referenceFrequency = NBlue::callback-> readReg32( ICL_REG_DSSM) >> 29;
+	auto referenceFrequency = callback->wrapReadRegister32(that, ICL_REG_DSSM) >> 29;
 	uint32_t newCdclkFrequency = 0;
 	uint32_t newPLLFrequency = 0;
 	switch (referenceFrequency) {
@@ -994,15 +1141,15 @@ void Gen11::sanitizeCDClockFrequency(void *that) {
 	
 	callback->orgSetCDClockFrequency(that, newPLLFrequency);
 	
-	//auto cdclk = wrapReadRegister32(that, ICL_REG_CDCLK_CTL) & CDCLK_FREQ_DECIMAL_MASK;
+	auto cdclk = wrapReadRegister32(that, ICL_REG_CDCLK_CTL) & CDCLK_FREQ_DECIMAL_MASK;
 
 }
 
 uint32_t Gen11::wrapProbeCDClockFrequency(void *that) {
 
-	//auto cdclk = callback->wrapReadRegister32(that, ICL_REG_CDCLK_CTL) & CDCLK_FREQ_DECIMAL_MASK;
+	auto cdclk = callback->wrapReadRegister32(that, ICL_REG_CDCLK_CTL) & CDCLK_FREQ_DECIMAL_MASK;
 
-	auto cdclk =NBlue::callback-> readReg32( ICL_REG_CDCLK_CTL) & CDCLK_FREQ_DECIMAL_MASK;
+	//auto cdclk =NBlue::callback-> readReg32( ICL_REG_CDCLK_CTL) & CDCLK_FREQ_DECIMAL_MASK;
 	
 	if (cdclk < ICL_CDCLK_DEC_FREQ_THRESHOLD) {
 		sanitizeCDClockFrequency(that);
@@ -1010,8 +1157,8 @@ uint32_t Gen11::wrapProbeCDClockFrequency(void *that) {
 	
 	//auto retVal = callback->orgProbeCDClockFrequency(that);
 	
-	//auto referenceFrequency = callback->wrapReadRegister32(that, ICL_REG_DSSM) >> 29;
-	auto referenceFrequency = NBlue::callback-> readReg32( ICL_REG_DSSM) >> 29;
+	auto referenceFrequency = callback->wrapReadRegister32(that, ICL_REG_DSSM) >> 29;
+	//auto referenceFrequency = NBlue::callback-> readReg32( ICL_REG_DSSM) >> 29;
 	return referenceFrequency;
 	
 	//return retVal;
@@ -1402,9 +1549,23 @@ uint32_t Gen11::wdepthFromAttribute(void *that,uint param_1)
 
 uint32_t Gen11::raReadRegister32(void *that,unsigned long param_1)
 {
-	return  NBlue::callback-> readReg32(param_1);
-	if (!static_cast<uint8_t *>(that) + 0x60)  return 0;
-	if (!static_cast<uint8_t *>(that) + 0x50)  return 0;
+	/*if (((getMember<long>(that, 0xd40) + 0xfa) & 1) != 0)
+	{
+		if (param_1 < 0x2000) {
+		}
+		else {
+			if ((param_1 < 0x40000) ||
+				(( 0x1bffff < param_1 &&
+				  ( param_1 < 0x240000))))
+				return 0;
+			
+		}
+	}*/
+	
+	if (static_cast<uint64_t *>(that)==nullptr)  return 0;
+	//return  NBlue::callback-> readReg32(param_1);
+	//if (!static_cast<uint8_t *>(that) + 0x60)  return 0;
+	//if (!static_cast<uint8_t *>(that) + 0x50)  return 0;
 	//if (!*reinterpret_cast<int *>(static_cast<uint8_t *>(that) + 0x60)) return 0;
 	//if (!*reinterpret_cast<long *>(static_cast<uint8_t *>(that) + 0x50)) return 0;
 	auto ret=FunctionCast(raReadRegister32, callback->oraReadRegister32)(that,param_1);
@@ -1470,84 +1631,88 @@ void Gen11::updateDBUF(void *that,uint param_1,uint param_2,bool param_3)
 	//setupPlanarSurfaceDBUF();
 };
 
-unsigned long Gen11::getHPDState(void *that)
+int Gen11::LightUpEDP(void *that,void *param_1, void *param_2,void *param_3)
 {
-	unsigned int uVar3 =NBlue::callback-> readReg32(0xc4000);
-	unsigned int uVar4 =NBlue::callback-> readReg32(0x1638a0);
-	unsigned int *puVar2 = (unsigned int *)(static_cast<uint8_t *>(that) + 0x548);
-	unsigned long uVar5;
-	
-	switch(*puVar2) {
-	case 0:
-	  uVar5 = (unsigned long)(uVar3 >> 0x10 & 1);
-	  goto LAB_000741fe;
-	case 1:
-	  uVar5 = (unsigned long)(uVar3 >> 0x11 & 1);
-	  goto LAB_000741fe;
-	case 2:
-	  if (uVar4 == 0xffffffff) {
-  LAB_00074125:
-		uVar5 = 0;
-		goto LAB_000741fe;
-	  }
-	  if ((uVar4 & 0x40) == 0) {
-		if ((uVar4 & 0x20) == 0) {
-		}
-		uVar5 = (unsigned long)(uVar4 >> 5 & 1);
-		goto LAB_000741fe;
-	  }
-	  uVar5 = 1;
-	  if ((uVar4 & 0x20) == 0) goto LAB_000741fe;
-	  break;
-	case 3:
-	  if (uVar4 == 0xffffffff) {
-		goto LAB_00074125;
-	  }
-	  if ((uVar4 >> 0xe & 1) == 0) {
-		if ((uVar4 >> 0xd & 1) == 0) {
-		}
-		uVar5 = (unsigned long)(uVar4 >> 0xd & 1);
-		goto LAB_000741fe;
-	  }
-	  uVar5 = 1;
-	  if ((uVar4 >> 0xd & 1) == 0) goto LAB_000741fe;
-	  break;
-	case 4:
-	  if (uVar4 == 0xffffffff) {
-		goto LAB_00074125;
-	  }
-	  if ((uVar4 >> 0x16 & 1) == 0) {
-		if ((uVar4 >> 0x15 & 1) == 0) {
-		}
-		uVar5 = (unsigned long)(uVar4 >> 0x15 & 1);
-		goto LAB_000741fe;
-	  }
-	  uVar5 = 1;
-	  if ((uVar4 >> 0x15 & 1) == 0) goto LAB_000741fe;
-	  break;
-	case 5:
-	  if (uVar4 == 0xffffffff) {
-		goto LAB_00074125;
-	  }
-	  if ((uVar4 >> 0x1e & 1) == 0) {
-		if ((uVar4 >> 0x1d & 1) == 0) {
-		}
-		uVar5 = (unsigned long)(uVar4 >> 0x1d & 1);
-		goto LAB_000741fe;
-	  }
-	  uVar5 = 1;
-	  if ((uVar4 >> 0x1d & 1) == 0) goto LAB_000741fe;
-	  break;
-	default:
-	  uVar5 = 0;
-	  goto LAB_000741fe;
-	}
-	uVar5 = 1;
-LAB_000741fe:
-	return uVar5;
+	FunctionCast(LightUpEDP, callback->oLightUpEDP)(that,param_1,param_2,param_3);
+	return 0;
 };
 
-int 	Gen11::probeBootPipe(void *that,bool *param_1,uint32_t *param_2)
+unsigned long Gen11::getHPDState(void *that)
+{
+
+	unsigned int uVar3 =callback->wrapReadRegister32(that, 0x1638a0);
+	unsigned int *puVar2 = (unsigned int *)(static_cast<uint8_t *>(that) + 0x548);
+	unsigned long PVar5;
+	
+
+
+	switch(*puVar2) {
+	case 0:
+	case 1:
+			PVar5 = 1;
+	  break;
+	case 2:
+			PVar5 = 0;
+	  if (uVar3 != 0xffffffff) {
+		  if ((uVar3 & 0x40) == 0) {
+		  if ((uVar3 & 0x20) != 0) {
+		  LAB_000b2d13:
+			PVar5 = 3;
+		  }
+		}
+		else {
+		LAB_000b2d3d:
+		  PVar5 = 2;
+		}
+	  }
+	  break;
+	case 3:
+
+			PVar5 = 0;
+	  if (uVar3 != 0xffffffff) {
+		  if ((uVar3 >> 0xe & 1) != 0) {
+			  goto LAB_000b2d3d;
+		}
+		if ((uVar3 >> 0xd & 1) != 0) {
+			goto LAB_000b2d13;
+		}
+	  }
+	  break;
+	case 4:
+
+			PVar5 = 0;
+	  if (uVar3 != 0xffffffff) {
+		  if ((uVar3 >> 0x16 & 1) != 0) {
+			  goto LAB_000b2d3d;
+		}
+		if ((uVar3 >> 0x15 & 1) != 0) {
+			goto LAB_000b2d13;
+		}
+	  }
+	  break;
+	case 5:
+
+			PVar5 = 0;
+	  if (uVar3 != 0xffffffff) {
+		  if ((uVar3 >> 0x1e & 1) != 0) {
+			  goto LAB_000b2d3d;
+		}
+		if ((uVar3 >> 0x1d & 1) != 0) {
+			goto LAB_000b2d13;
+		}
+	  }
+	  break;
+	default:
+	  PVar5 = 0;
+
+	}
+
+LAB_000b2d4a:
+	
+	return PVar5;
+};
+
+int Gen11::probeBootPipe(void *that,bool *param_1,uint32_t *param_2)
 {
 	//FunctionCast(probeBootPipe, callback->oprobeBootPipe)();
 	uint uVar1;
@@ -1562,11 +1727,11 @@ int 	Gen11::probeBootPipe(void *that,bool *param_1,uint32_t *param_2)
 	if (param_2 != (uint32_t *)0x0) *(uint32_t *)param_2 = 0;
 	
 	return 0;
-	/*
-	uVar1 = NBlue::callback-> readReg32(0x6f400);
-	uVar2 = NBlue::callback-> readReg32(0x60400);
-	uVar3 = NBlue::callback-> readReg32(0x61400);
-	uVar4 = NBlue::callback-> readReg32(0x62400);
+	
+	uVar1 = callback->wrapReadRegister32(that, 0x6f400);
+	uVar2 = callback->wrapReadRegister32(that,0x60400);
+	uVar3 = callback->wrapReadRegister32(that,0x61400);
+	uVar4 = callback->wrapReadRegister32(that,0x62400);
 	iVar5 = 0;
 	if ((int)uVar1 < 0) {
 	  uVar2 = uVar1;
@@ -1619,5 +1784,17 @@ int 	Gen11::probeBootPipe(void *that,bool *param_1,uint32_t *param_2)
 	  }
 	  iVar5 = 0xffff;
 	}
-	return iVar5;*/
+	return iVar5;
 };
+
+int Gen11::handleLinkIntegrityCheck()
+{
+	return 0;
+};
+
+void Gen11::setPanelPowerState(void *that,bool param_1)
+{
+	
+	NBlue::callback->iGPU->setProperty("AAPL,LCD-PowerState-ON", param_1);
+};
+
