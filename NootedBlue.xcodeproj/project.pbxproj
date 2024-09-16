@@ -18,6 +18,8 @@
 		2E7C04D82C8A51F000B07113 /* IGHucBinary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2E7C04D62C8A51F000B07113 /* IGHucBinary.h */; };
 		2E8EC5462BC80833003B4F59 /* kern_netdbg.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2E8EC5442BC80833003B4F59 /* kern_netdbg.hpp */; };
 		2E8EC5472BC80833003B4F59 /* kern_netdbg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E8EC5452BC80833003B4F59 /* kern_netdbg.cpp */; };
+		2EA343FE2C93C07700160F43 /* kern_genx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EA343FC2C93C07700160F43 /* kern_genx.cpp */; };
+		2EA343FF2C93C07700160F43 /* kern_genx.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2EA343FD2C93C07700160F43 /* kern_genx.hpp */; };
 		2EF921282BA73D45003DCAFC /* kern_guc.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2EF921262BA73D45003DCAFC /* kern_guc.hpp */; };
 		CE405ED91E4A080700AA0B3D /* plugin_start.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE405ED81E4A080700AA0B3D /* plugin_start.cpp */; };
 		CE8DA0832517C41A008C44E8 /* libkmod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CE8DA0822517C41A008C44E8 /* libkmod.a */; };
@@ -60,6 +62,8 @@
 		2E7C04D62C8A51F000B07113 /* IGHucBinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGHucBinary.h; sourceTree = "<group>"; };
 		2E8EC5442BC80833003B4F59 /* kern_netdbg.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = kern_netdbg.hpp; sourceTree = "<group>"; };
 		2E8EC5452BC80833003B4F59 /* kern_netdbg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kern_netdbg.cpp; sourceTree = "<group>"; };
+		2EA343FC2C93C07700160F43 /* kern_genx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kern_genx.cpp; sourceTree = "<group>"; };
+		2EA343FD2C93C07700160F43 /* kern_genx.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = kern_genx.hpp; sourceTree = "<group>"; };
 		2EF921262BA73D45003DCAFC /* kern_guc.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = kern_guc.hpp; sourceTree = "<group>"; };
 		CE405EBA1E49DD7100AA0B3D /* kern_compression.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = kern_compression.hpp; sourceTree = "<group>"; };
 		CE405EBB1E49DD7100AA0B3D /* kern_disasm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = kern_disasm.hpp; sourceTree = "<group>"; };
@@ -132,6 +136,8 @@
 				2E1CC3E02BA5DBD9004EC8F6 /* DisplayMergeNub.h */,
 				F0AF08B92A0F373F00B63C2B /* kern_gen11.cpp */,
 				F0AF08BA2A0F373F00B63C2B /* kern_gen11.hpp */,
+				2EA343FC2C93C07700160F43 /* kern_genx.cpp */,
+				2EA343FD2C93C07700160F43 /* kern_genx.hpp */,
 				F0A4BE572A1996E40031D569 /* kern_model.hpp */,
 				F009B7A229E4EEBA00786AFF /* kern_nblue.cpp */,
 				F067C20329D82E57004BB52E /* kern_nblue.hpp */,
@@ -205,6 +211,7 @@
 				2E5BF5842BCC212F0095BDCF /* HDMI.hpp in Headers */,
 				2EF921282BA73D45003DCAFC /* kern_guc.hpp in Headers */,
 				F0A4BE592A1996E40031D569 /* kern_model.hpp in Headers */,
+				2EA343FF2C93C07700160F43 /* kern_genx.hpp in Headers */,
 				F0B49E9529D93A600067BE5B /* (null) in Headers */,
 				F0BB9E562A57A0340081F5FA /* kern_patcherplus.hpp in Headers */,
 				2E8EC5462BC80833003B4F59 /* kern_netdbg.hpp in Headers */,
@@ -315,6 +322,7 @@
 				F0BB9E552A57A0340081F5FA /* kern_patcherplus.cpp in Sources */,
 				2E5BF5832BCC212F0095BDCF /* HDMI.cpp in Sources */,
 				F0B49E9629D93A600067BE5B /* (null) in Sources */,
+				2EA343FE2C93C07700160F43 /* kern_genx.cpp in Sources */,
 				2E07E0472C6D6555003F37BC /* kern_guc.cpp in Sources */,
 				F0AF08BB2A0F373F00B63C2B /* kern_gen11.cpp in Sources */,
 				CE405ED91E4A080700AA0B3D /* plugin_start.cpp in Sources */,

@@ -786,7 +786,7 @@ enum intel_pch {
 
 
 class Gen11 {
-	//friend class Gen9_5;
+	friend class Genx;
 
 private:
 	
@@ -847,6 +847,8 @@ private:
 	static bool  getGPUInfo(void *that);
 	mach_vm_address_t ogetGPUInfo {};
 	
+	static unsigned long fastLinkTraining();
+	mach_vm_address_t ofastLinkTraining {};
 	
 	static IOReturn wrapFBClientDoAttribute(void *fbclient, uint32_t attribute, unsigned long *unk1, unsigned long unk2, unsigned long *unk3, unsigned long *unk4, void *externalMethodArguments);
 	mach_vm_address_t orgFBClientDoAttribute {};
@@ -889,29 +891,30 @@ private:
 	mach_vm_address_t oraReadRegister32 {};
 	
 	static unsigned long raReadRegister32b(void *that,void *param_1,unsigned long param_2);
+	mach_vm_address_t oraReadRegister32b {};
 	
 	static uint64_t raReadRegister64(void *that,unsigned long param_1);
 	mach_vm_address_t oraReadRegister64 {};
 	
 	static uint64_t raReadRegister64b(void *that,void *param_1,unsigned long param_2);
 	
-	static void radWriteRegister32(void *that,unsigned long param_1, unsigned int param_2);
+	static void radWriteRegister32(void *that,unsigned long param_1, UInt32 param_2);
 	mach_vm_address_t oradWriteRegister32 {};
-	static void radWriteRegister32f(void *that,unsigned long param_1, unsigned int param_2);
+	static void radWriteRegister32f(void *that,unsigned long param_1, UInt32 param_2);
 	mach_vm_address_t oradWriteRegister32f {};
 	
-	static void raWriteRegister32(void *that,unsigned long param_1, unsigned int param_2);
+	static void raWriteRegister32(void *that,unsigned long param_1, UInt32 param_2);
 	mach_vm_address_t oraWriteRegister32 {};
 	
-	static void raWriteRegister32b(void *that,void *param_1,unsigned long param_2, unsigned int param_3);
+	static void raWriteRegister32b(void *that,void *param_1,unsigned long param_2, UInt32 param_3);
 	
-	static void raWriteRegister32f(void *that,unsigned long param_1, unsigned int param_2);
+	static void raWriteRegister32f(void *that,unsigned long param_1, UInt32 param_2);
 	mach_vm_address_t oraWriteRegister32f {};
 	
-	static void raWriteRegister64(void *that,unsigned long param_1,unsigned long long param_2);
+	static void raWriteRegister64(void *that,unsigned long param_1,UInt64 param_2);
 	mach_vm_address_t oraWriteRegister64 {};
 	
-	static void raWriteRegister64b(void *that,void *param_1,unsigned long param_2,unsigned long long param_3);
+	static void raWriteRegister64b(void *that,void *param_1,unsigned long param_2,UInt64 param_3);
 	
 	static unsigned long getHPDState(void *that);
 	
@@ -928,6 +931,15 @@ private:
 	
 	static int LightUpEDP(void *that,void *param_1, void *param_2,void *param_3);
 	mach_vm_address_t oLightUpEDP {};
+	
+	mach_vm_address_t PowerWell {};
+	mach_vm_address_t PortHAL {};
+	mach_vm_address_t PortHALDiags {};
+	mach_vm_address_t AppleIntelPort {};
+	
+	mach_vm_address_t disableScaler {};
+	
+	
 	
 public:
 

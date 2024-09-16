@@ -3,6 +3,7 @@
 
 #include "kern_nblue.hpp"
 #include "kern_gen11.hpp"
+#include "kern_genx.hpp"
 #include "kern_model.hpp"
 #include "DYLDPatches.hpp"
 #include "HDMI.hpp"
@@ -27,7 +28,7 @@ static KernelPatcher::KextInfo kextIOGraphics { "com.apple.iokit.IOGraphicsFamil
 
 NBlue *NBlue::callback = nullptr;
 
-
+static Genx genx;
 static Gen11 gen11;
 static DYLDPatches dyldpatches;
 static HDMI agfxhda;
@@ -40,6 +41,7 @@ void NBlue::init() {
 	lilu.onKextLoadForce(&kextMCCSControl);
 	lilu.onKextLoadForce(&kextIOGraphics);
 	
+	genx.init();
 	gen11.init();
 	agfxhda.init();
 	dyldpatches.init();
@@ -72,11 +74,11 @@ void NBlue::processPatcher(KernelPatcher &patcher) {
 		
 
         static uint8_t builtin[] = {0x00};
-		//static uint8_t builtin2[] = {0x02, 0x00, 0x5c, 0x8A};
-		//static uint8_t builtin3[] = {0x5c, 0x8A,0x00,0x00};
+		static uint8_t builtin2[] = {0x02, 0x00, 0x5c, 0x8A};
+		static uint8_t builtin3[] = {0x5c, 0x8A,0x00,0x00};
 		
-		static uint8_t builtin2[] = {0x00, 0x00, 0x49, 0x9A};
-		static uint8_t builtin3[] = {0x49, 0x9A,0x00,0x00};
+		//static uint8_t builtin2[] = {0x00, 0x00, 0x49, 0x9A};
+		//static uint8_t builtin3[] = {0x49, 0x9A,0x00,0x00};
 
 		WIOKit::renameDevice(this->iGPU, "IGPU");
 		WIOKit::awaitPublishing(this->iGPU);
@@ -115,136 +117,6 @@ void NBlue::processPatcher(KernelPatcher &patcher) {
 		stolen_size *= (1024 * 1024);
 		SYSLOG("nblue", "stolen_size 0x%x",stolen_size);
 		
-#if 0
-		/* 1. Enable PCH reset handshake. */
-		auto reg=readReg32(HSW_NDE_RSTWRN_OPT);
-		writeReg32(HSW_NDE_RSTWRN_OPT ,reg|RESET_PCH_HANDSHAKE_ENABLE );
-		
-		writeReg32(0x00044200 ,0x80000000 );
-		writeReg32(0x00044404 ,0x6f8ff07e );
-		writeReg32(0x0004440c ,0x90700f89 );
-		writeReg32(0x00044444 ,0xc1800000 );
-		writeReg32(0x0004444c ,0x00003f07 );
-		writeReg32(0x00044464 ,0xdb8480f8 );
-		writeReg32(0x000444e4 ,0xffffffff );
-		writeReg32(0x00045400 ,1 );
-		writeReg32(0x00045404 ,3 );
-		writeReg32(0x0004540c ,1 );
-		writeReg32(0x0006c054 ,0x418a01ca );
-		writeReg32(0x0006c058 ,0x012800e7 );
-		writeReg32(0x0006c05c ,0x00000300 );
-		writeReg32(0x00046000 ,0x00380158 );
-		writeReg32(0x00046010 ,0xcc000000 );
-		writeReg32(0x00046140 ,0x10000000 );
-		
-		writeReg32(0x0007027c ,0x07df0000 );
-		writeReg32(0x00070180 ,0x84000400 );
-		writeReg32(0x000701a0 ,0xff000000 );
-		writeReg32(0x00070190 ,0x0383063f );
-		writeReg32(0x0007019c ,0x027c0000 );
-		writeReg32(0x000701ac ,0x00880000 );
-		writeReg32(0x00070240 ,0x8000400e );
-		writeReg32(0x00070244 ,0x80010039 );
-		writeReg32(0x00070248 ,0x80010039 );
-		writeReg32(0x0007024c ,0x80010039 );
-		writeReg32(0x00070250 ,0x80010039 );
-		writeReg32(0x00070254 ,0x80014047 );
-		writeReg32(0x00070258 ,0x80020071 );
-		writeReg32(0x0007025c ,0x80020071 );
-		writeReg32(0x00070268 ,0x8000001c );
-		writeReg32(0x0007017c ,0x07ff07e0 );
-		writeReg32(0x00070084 ,0x010c0000 );
-		writeReg32(0x00070080 ,0x00000023 );
-		writeReg32(0x00070088 ,0x020300e9 );
-		writeReg32(0x000700ac ,0x010c0000 );
-		writeReg32(0x00070140 ,0x80008006 );
-		writeReg32(0x00070144 ,0x8001000d );
-		writeReg32(0x00070148 ,0x8001000d );
-		writeReg32(0x0007014c ,0x8001000d );
-		writeReg32(0x00070150 ,0x8001000d );
-		writeReg32(0x00070154 ,0x80014010 );
-		writeReg32(0x00070158 ,0x80020019 );
-		writeReg32(0x0007015c ,0x80020019 );
-		writeReg32(0x00070168 ,0x80000014 );
-		writeReg32(0x00068194 ,0x00003aaa );
-		writeReg32(0x00068190 ,0x00006aab );
-		writeReg32(0x00068290 ,0x00000708 );
-		writeReg32(0x00068188 ,0x00003aaa );
-		writeReg32(0x00068184 ,0x00006aab );
-		writeReg32(0x00068284 ,0x00000100 );
-		writeReg32(0x00068174 ,0x07800438 );
-		writeReg32(0x00070008 ,0xc0000000 );
-		writeReg32(0x00060004 ,0x0833077f );
-		writeReg32(0x00060008 ,0x081b07eb );
-		writeReg32(0x00060000 ,0x0833077f );
-		writeReg32(0x00060010 ,0x04650437 );
-		writeReg32(0x00060014 ,0x044b0441 );
-		writeReg32(0x0006000c ,0x04650437 );
-		writeReg32(0x00060030 ,0x7e64fa4f );
-		writeReg32(0x00060040 ,0x00043518 );
-		writeReg32(0x00060400 ,0x8a000002 );
-		writeReg32(0x00060410 ,0x00000021 );
-		writeReg32(0x00045270 ,0x00000077 );
-		writeReg32(0x00045260 ,0x20000000 );
-		writeReg32(0x000701cc ,0x00002000 );
-		writeReg32(0x0006b400 ,0x00030000 );
-		writeReg32(0x0006bc00 ,0x00030000 );
-		writeReg32(0x00045038 ,0xa2913050 );
-		writeReg32(0x0007003c ,0xb1038c02 );
-		writeReg32(0x00164294 ,0x018001d4 );
-		writeReg32(0x00164298 ,0x00002644 );
-		writeReg32(0x00164b10 ,0x401320ff );
-		writeReg32(0x00164c10 ,0x401320ff );
-		writeReg32(0x00164e10 ,0xffffffff );
-		writeReg32(0x0007b008 ,0x00000024 );
-		writeReg32(0x0007b808 ,0x00000024 );
-		writeReg32(0x0006b400 ,0x00030000 );
-		writeReg32(0x0006bc00 ,0x00030000 );
-
-		
-		
-		/* WaModifyGamTlbPartitioning:icl */
-		//writeReg32(GEN11_GACB_PERF_CTRL ,~GEN11_HASH_CTRL_MASK );
-		//writeReg32(GEN11_GACB_PERF_CTRL ,GEN11_HASH_CTRL_BIT0 | GEN11_HASH_CTRL_BIT4 );
-
-		/* Wa_1405766107:icl
-		 * Formerly known as WaCL2SFHalfMaxAlloc
-		 */
-	  reg=readReg32(GEN11_LSN_UNSLCVC);
-		writeReg32(GEN11_LSN_UNSLCVC ,reg|GEN11_LSN_UNSLCVC_GAFS_HALF_SF_MAXALLOC |
-						GEN11_LSN_UNSLCVC_GAFS_HALF_CL2_MAXALLOC );
-
-		/* Wa_220166154:icl
-		 * Formerly known as WaDisCtxReload
-		 */
-	reg=readReg32(GEN8_GAMW_ECO_DEV_RW_IA);
-		writeReg32(GEN8_GAMW_ECO_DEV_RW_IA ,reg|GAMW_ECO_DEV_CTX_RELOAD_DISABLE );
-
-		/* Wa_1406463099:icl
-		 * Formerly known as WaGamTlbPendError
-		 */
-	reg=readReg32(GAMT_CHKN_BIT_REG);
-		writeReg32(GAMT_CHKN_BIT_REG ,reg|GAMT_CHKN_DISABLE_L3_COH_PIPE );
-
-		/*
-		 * Wa_1408615072:icl,ehl  (vsunit)
-		 * Wa_1407596294:icl,ehl  (hsunit)
-		 */
-	reg=readReg32(UNSLICE_UNIT_LEVEL_CLKGATE);
-		writeReg32(UNSLICE_UNIT_LEVEL_CLKGATE ,reg|VSUNIT_CLKGATE_DIS | HSUNIT_CLKGATE_DIS );
-
-
-		/* Wa_1407352427:icl,ehl */
-	reg=readReg32(UNSLICE_UNIT_LEVEL_CLKGATE2);
-		writeReg32(UNSLICE_UNIT_LEVEL_CLKGATE2 ,reg|PSDUNIT_CLKGATE_DIS );
-		
-		/* Wa_1406680159:icl,ehl */
-		//reg=readReg32(GEN11_SUBSLICE_UNIT_LEVEL_CLKGATE);
-		//	writeReg32(GEN11_SUBSLICE_UNIT_LEVEL_CLKGATE ,reg|GWUNIT_CLKGATE_DIS );
-		
-		//to reduce sampler power.
-		//writeReg32(GEN10_DFR_RATIO_EN_AND_CHICKEN ,DFR_DISABLE );
-#endif
 		KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead16, configRead16, &orgConfigRead16);
 		KernelPatcher::routeVirtual(this->iGPU, WIOKit::PCIConfigOffset::ConfigRead32, configRead32, &orgConfigRead32);
 
@@ -256,14 +128,32 @@ void NBlue::processPatcher(KernelPatcher &patcher) {
         SYSLOG("nblue", "Failed to create DeviceInfo");
     }
 	
-
+	/*KernelPatcher::RouteRequest request {"__ZN15OSMetaClassBase12safeMetaCastEPKS_PK11OSMetaClass", wrapSafeMetaCast,
+		this->orgSafeMetaCast};
+	PANIC_COND(!patcher.routeMultipleLong(KernelPatcher::KernelID, &request, 1), "nblue",
+		"Failed to route kernel symbols");*/
+	
 	dyldpatches.processPatcher(patcher);
+}
+
+OSMetaClassBase *NBlue::wrapSafeMetaCast(const OSMetaClassBase *anObject, const OSMetaClass *toMeta) {
+	auto ret = FunctionCast(wrapSafeMetaCast, callback->orgSafeMetaCast)(anObject, toMeta);
+	if (UNLIKELY(!ret)) {
+		for (const auto &ent : callback->metaClassMap) {
+			if (LIKELY(ent[0] == toMeta)) {
+				return FunctionCast(wrapSafeMetaCast, callback->orgSafeMetaCast)(anObject, ent[1]);
+			} else if (UNLIKELY(ent[1] == toMeta)) {
+				return FunctionCast(wrapSafeMetaCast, callback->orgSafeMetaCast)(anObject, ent[0]);
+			}
+		}
+	}
+	return ret;
 }
 
 void NBlue::setRMMIOIfNecessary() {
 	if (UNLIKELY(!this->rmmio || !this->rmmio->getLength())) {
-		this->rmmio = this->iGPU->mapDeviceMemoryWithRegister(kIOPCIConfigBaseAddress0);// ????
-		this->rmmioPtr = reinterpret_cast<volatile uint32_t *>(this->rmmio->getVirtualAddress());
+		this->rmmio = this->iGPU->mapDeviceMemoryWithRegister(kIOPCIConfigBaseAddress0);
+		this->rmmioPtr = reinterpret_cast<volatile uint64_t *>(this->rmmio->getVirtualAddress());
 	}
 }
 
@@ -306,11 +196,13 @@ bool NBlue::processKext(KernelPatcher &patcher, size_t index, mach_vm_address_t 
 			};
 			patcher.routeMultiple(index, requests, address, size);
 			patcher.clearError();
+} else if (genx.processKext(patcher, index, address, size)) {
+	DBGLOG("nblue", "Processed Generation x configuration");
 } else if (gen11.processKext(patcher, index, address, size)) {
         DBGLOG("nblue", "Processed Generation 11 configuration");
-    } else if (agfxhda.processKext(patcher, index, address, size)) {
+    } /*else if (agfxhda.processKext(patcher, index, address, size)) {
 		DBGLOG("nblue", "Processed AppleGFXHDA");
-	}
+	}*/
     return true;
 }
 

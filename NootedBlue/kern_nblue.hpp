@@ -20,18 +20,6 @@ struct intel_ip_version {
 	UInt8 step;
 };
 
-enum struct iGFXGen {
-    Haswell,    // Haswell had no lower end rebrands, so it gets it's name plastered here
-    Gen8,       // Broadwell & Braswell/Cherry Trail/Cherry View
-    Gen9,       // Skylake & Apollo Lake/Broxton
-    Gen9_5,     // Coffee Lake, Comet Lake, Gemini Lake, Kaby Lake
-    Gen11,      // Ice Lake kexts support G1 with device-id spoofs, this, however, is inconvenient, also Elkhart/Jasper
-                // Lake exist, pain.
-    Gen12_1,    // Tiger Lake, these placeholders, don't get your hopes up
-    Gen12_2,    // Alder Lake & Raptor Lake
-    Unknown,
-};
-
 constexpr UInt32 mmPCIE_INDEX2 = 0xE;
 constexpr UInt32 mmPCIE_DATA2 = 0xF;
 /*
@@ -45,6 +33,7 @@ class EXPORT PRODUCT_NAME : public IOService {
 
 class NBlue {
     friend class Gen11;
+	friend class Genx;
 	friend class DYLDPatches;
 
     public:
@@ -59,6 +48,10 @@ class NBlue {
 	WIOKit::t_PCIConfigRead16 orgConfigRead16 {nullptr};
 	WIOKit::t_PCIConfigRead32 orgConfigRead32 {nullptr};
 	
+	OSMetaClass *metaClassMap[4][2] = {{nullptr}};
+	mach_vm_address_t orgSafeMetaCast {0};
+	static OSMetaClassBase *wrapSafeMetaCast(const OSMetaClassBase *anObject, const OSMetaClass *toMeta);
+	
 	static size_t wrapFunctionReturnZero();
 	
 	mach_vm_address_t orgApplePanelSetDisplay {0};
@@ -69,41 +62,41 @@ class NBlue {
 	
     private:
 	
-	UInt32 readReg32(UInt32 reg) {
+	UInt32 readReg32(unsigned long reg) {
 		if (reg * sizeof(uint32_t) < this->rmmio->getLength()) {
 			return this->rmmioPtr[reg];
 		} else {
-			//return 0;
+			return 0;
 			this->rmmioPtr[mmPCIE_INDEX2] = reg;
 			return this->rmmioPtr[mmPCIE_DATA2];
 		}
 	}
 
-	void writeReg32(UInt32 reg, UInt32 val) {
+	void writeReg32(unsigned long reg, UInt32 val) {
 		if ((reg * sizeof(uint32_t)) < this->rmmio->getLength()) {
 			this->rmmioPtr[reg] = val;
 		} else {
-			this->rmmioPtr[mmPCIE_INDEX2] = reg;
-			this->rmmioPtr[mmPCIE_DATA2] = val;
+			//this->rmmioPtr[mmPCIE_INDEX2] = reg;
+			//this->rmmioPtr[mmPCIE_DATA2] = val;
 		}
 	}
 	
-	UInt64 readReg64(UInt32 reg) {
+	UInt64 readReg64(unsigned long reg) {
 		if (reg * sizeof(uint64_t) < this->rmmio->getLength()) {
 			return this->rmmioPtr[reg];
 		} else {
-			//return 0;
+			return 0;
 			this->rmmioPtr[mmPCIE_INDEX2] = reg;
 			return this->rmmioPtr[mmPCIE_DATA2];
 		}
 	}
 
-	void writeReg64(UInt32 reg, UInt64 val) {
+	void writeReg64(unsigned long reg, UInt64 val) {
 		if ((reg * sizeof(uint64_t)) < this->rmmio->getLength()) {
 			this->rmmioPtr[reg] = val;
 		} else {
-			this->rmmioPtr[mmPCIE_INDEX2] = reg;
-			this->rmmioPtr[mmPCIE_DATA2] = val;
+			//this->rmmioPtr[mmPCIE_INDEX2] = reg;
+			//this->rmmioPtr[mmPCIE_DATA2] = val;
 		}
 	}
 	
@@ -111,14 +104,13 @@ class NBlue {
     bool isJslDerivative = false;
     bool isGen9LPDerivative = false;
     bool isGen8LPDerivative = false;
-    iGFXGen igfxGen = iGFXGen::Unknown;
     uint32_t deviceId {0};
     uint16_t revision {0};
     uint32_t pciRevision {0};
     IOPCIDevice *iGPU {nullptr};
 	
 	IOMemoryMap *rmmio {nullptr};
-	volatile UInt32 *rmmioPtr {nullptr};
+	volatile UInt64 *rmmioPtr {nullptr};
 
 
 	
